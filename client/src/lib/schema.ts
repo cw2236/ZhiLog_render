@@ -7,7 +7,8 @@ export interface ReferenceCitation {
 
 export interface PaperData {
     filename: string;
-    file_url: string;
+    wofile_url: string;
+    file_url: string; // 新增字段，类型为 string
     authors: string[];
     title: string;
     abstract: string;
@@ -33,6 +34,7 @@ export interface ChatMessage {
     role: 'user' | 'assistant';
     content: string;
     references?: Reference;
+    highlightId?: string; // 新增，绑定高亮
 }
 
 export interface PaperHighlight {

@@ -174,14 +174,18 @@ export function useHighlights(paperId: string, readOnlyHighlights: Array<PaperHi
 
     // Handle text selection
     const handleTextSelection = (e: React.MouseEvent | MouseEvent) => {
+        console.log('handleTextSelection called, event type:', e.type);
         const selection = window.getSelection();
+        console.log('Selection:', selection?.toString());
         if (selection && selection.toString()) {
             // Use the selected text
             let text = selection.toString();
+            console.log('Selected text:', text);
             setIsHighlightInteraction(false);
 
             // Normalize the text while preserving paragraph structure
             text = normalizeSelectedText(text);
+            console.log('Normalized text:', text);
             setSelectedText(text);
 
             // Set tooltip position near cursor
@@ -190,6 +194,7 @@ export function useHighlights(paperId: string, readOnlyHighlights: Array<PaperHi
                 y: e.clientY
             });
         } else {
+            console.log('No selection found');
             if (!isHighlightInteraction && selectedText) {
                 setTimeout(() => {
                     if (!isHighlightInteraction) {

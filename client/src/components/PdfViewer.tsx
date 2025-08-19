@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import "../lib/promisePolyfill";
 import { Document, Page } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -14,17 +14,28 @@ import { usePdfSearch } from "./hooks/PdfSearch";
 import { usePdfNavigation } from "./hooks/PdfNavigation";
 import { usePdfLoader } from "./hooks/PdfLoader";
 import InlineAnnotationMenu from "./InlineAnnotationMenu";
+import BubbleComment from "./BubbleComment";
 import {
 	PaperHighlight,
 	PaperHighlightAnnotation,
+	ChatMessage,
 } from '@/lib/schema';
 import EnigmaticLoadingExperience from "@/components/EnigmaticLoadingExperience";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { getStatusIcon, PaperStatus } from "./utils/PdfStatus";
 
+interface CommentThread {
+    id: string;
+    highlightId?: string;
+    selectedText: string;
+    messages: ChatMessage[];
+    isExpanded: boolean;
+}
+
 interface PdfViewerProps {
 	pdfUrl: string;
 	explicitSearchTerm?: string;
+	setExplicitSearchTerm?: (term: string) => void;
 	setUserMessageReferences: React.Dispatch<React.SetStateAction<string[]>>;
 	highlights: PaperHighlight[];
 	setHighlights: (highlights: PaperHighlight[]) => void;
@@ -46,12 +57,18 @@ interface PdfViewerProps {
 	setAddedContentForPaperNote: (content: string) => void;
 	handleStatusChange?: (status: PaperStatus) => void;
 	paperStatus?: PaperStatus;
+	// 新增评论气泡相关 props
+	commentThreads: CommentThread[];
+	activeThreadId: string | null;
+	setActiveThreadId: (threadId: string | null) => void;
 }
 
-export function PdfViewer(props: PdfViewerProps) {
+// 用forwardRef包裹PdfViewer
+export const PdfViewer = forwardRef(function PdfViewer(props: PdfViewerProps, ref) {
 	const {
 		pdfUrl,
 		explicitSearchTerm,
+		setExplicitSearchTerm,
 		setUserMessageReferences,
 		highlights,
 		setHighlights,
@@ -73,6 +90,10 @@ export function PdfViewer(props: PdfViewerProps) {
 		setAddedContentForPaperNote,
 		paperStatus,
 		handleStatusChange = () => { },
+		// 新增评论气泡相关 props
+		commentThreads,
+		activeThreadId,
+		setActiveThreadId,
 	} = props;
 
 	const [currentPage, setCurrentPage] = useState<number>(1);
@@ -271,6 +292,41 @@ export function PdfViewer(props: PdfViewerProps) {
 		renderAnnotations(annotations);
 	}, [annotations]);
 
+	// 监听评论线程变化和窗口大小变化，重新计算气泡位置
+	useEffect(() => {
+		if (!commentThreads || commentThreads.length === 0) return;
+
+		const handleResize = () => {
+			// 强制重新渲染气泡位置
+			setTimeout(() => {
+				// 触发重新渲染
+				setCurrentPage(currentPage);
+			}, 100);
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, [commentThreads, currentPage]);
+
+	// 监听滚动和缩放变化，重新计算气泡位置
+	useEffect(() => {
+		if (!commentThreads || commentThreads.length === 0) return;
+
+		const handleScroll = () => {
+			// 强制重新渲染气泡位置
+			setTimeout(() => {
+				// 触发重新渲染
+				setCurrentPage(currentPage);
+			}, 50);
+		};
+
+		const container = containerRef.current;
+		if (container) {
+			container.addEventListener('scroll', handleScroll);
+			return () => container.removeEventListener('scroll', handleScroll);
+		}
+	}, [commentThreads, currentPage, scale]);
+
 	const checkTextLayersReady = () => {
 		const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
 		let allReady = true;
@@ -290,6 +346,176 @@ export function PdfViewer(props: PdfViewerProps) {
 
 		return allReady && textLayers.length > 0;
 	};
+
+    // 计算气泡位置的函数
+    const calculateBubblePosition = (highlightId: string) => {
+        const highlightElement = document.querySelector(`[data-highlight-id="${highlightId}"]`) as HTMLElement;
+        if (!highlightElement) return null;
+
+        const rect = highlightElement.getBoundingClientRect();
+        const containerRect = containerRef.current?.getBoundingClientRect();
+        if (!containerRect) return null;
+
+        // 计算相对于 PDF 容器的位置
+        const relativeTop = rect.top - containerRect.top;
+        const relativeLeft = rect.right - containerRect.left;
+
+        // 计算相对于页面的位置
+        const pageElement = highlightElement.closest('.react-pdf__Page') as HTMLElement;
+        if (!pageElement) return null;
+
+        const pageRect = pageElement.getBoundingClientRect();
+        const pageRelativeTop = relativeTop - (pageRect.top - containerRect.top);
+
+        return {
+            left: relativeLeft + 8, // 右侧偏移 8px
+            top: pageRelativeTop - 4, // 稍微向上偏移
+            position: 'absolute' as const,
+            transform: 'translateY(0)',
+        };
+    };
+
+    // 维护每个气泡的最新位置
+    const [bubblePositions, setBubblePositions] = useState<Record<string, { 
+        left: number;
+        top: number;
+        position: 'absolute';
+        transform: string;
+    }>>({});
+
+    // 计算所有气泡位置
+    const updateAllBubblePositions = () => {
+        const newPositions: Record<string, any> = {};
+        commentThreads.forEach(thread => {
+            if (thread.highlightId) {
+                const pos = calculateBubblePosition(thread.highlightId);
+                if (pos) newPositions[thread.id] = pos;
+            }
+        });
+        setBubblePositions(newPositions);
+    };
+
+    // 监听滚动和缩放变化，重新计算气泡位置
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container || !commentThreads || commentThreads.length === 0) return;
+
+        updateAllBubblePositions();
+
+        const handleUpdate = () => {
+            requestAnimationFrame(updateAllBubblePositions);
+        };
+
+        container.addEventListener('scroll', handleUpdate);
+        window.addEventListener('resize', handleUpdate);
+
+        return () => {
+            container.removeEventListener('scroll', handleUpdate);
+            window.removeEventListener('resize', handleUpdate);
+        };
+    }, [commentThreads, scale, currentPage]);
+
+    // 渲染评论气泡
+    const renderCommentBubbles = () => {
+        if (!commentThreads || commentThreads.length === 0) return null;
+        
+        return commentThreads.map(thread => {
+            if (!thread.highlightId) return null;
+            
+            const position = bubblePositions[thread.id];
+            if (!position) return null;
+
+            return (
+                <BubbleComment
+                    key={thread.id}
+                    threadId={thread.id}
+                    messageCount={thread.messages.length}
+                    style={position}
+                    onClick={() => {
+                        setActiveThreadId(thread.id);
+                        if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('switchToChat'));
+                        }
+                    }}
+                    isActive={activeThreadId === thread.id}
+                    isCollapsed={bubbleCollapseMap[thread.id] !== false}
+                    onToggleCollapse={() => handleToggleCollapse(thread.id)}
+                >
+                    <div className="text-xs text-gray-700 max-w-xs break-words">
+                        <div className="font-semibold mb-1">Comment</div>
+                        <div>"{thread.selectedText}"</div>
+                        <div className="mt-1 text-gray-500">{thread.messages.length} message{thread.messages.length !== 1 ? 's' : ''}</div>
+                    </div>
+                </BubbleComment>
+            );
+        }).filter(Boolean);
+    };
+
+	// 实现scrollToHighlight方法
+	const scrollToHighlight = (key: string) => {
+		// key可以是高亮id或citation key，假设高亮元素有data-highlight-id属性
+		const highlightElement = document.querySelector(`[data-highlight-id="${key}"]`);
+		if (highlightElement) {
+			highlightElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			// 可选：高亮动画
+			highlightElement.classList.add('ring-2', 'ring-blue-400');
+			setTimeout(() => {
+				highlightElement.classList.remove('ring-2', 'ring-blue-400');
+			}, 1200);
+		}
+	};
+
+	useImperativeHandle(ref, () => ({
+		scrollToHighlight
+	}));
+
+    // 监听跳转事件
+    useEffect(() => {
+        const handleJumpToHighlight = (event: CustomEvent) => {
+            const { searchText, shouldHighlight, key } = event.detail;
+            console.log('Jump to highlight event received:', { searchText, shouldHighlight, key });
+            
+            // 设置搜索文本并立即执行搜索
+            if (searchText) {
+                setSearchText(searchText);
+                setTimeout(() => {
+                    performSearch();
+                }, 100);
+            }
+
+            // 如果需要高亮，添加临时高亮效果
+            if (shouldHighlight) {
+                // 等待一下让搜索完成
+                setTimeout(() => {
+                    const textElements = document.querySelectorAll('.react-pdf__Page__textContent span');
+                    textElements.forEach(element => {
+                        if (element.textContent?.includes(searchText)) {
+                            element.setAttribute('data-highlight-id', key);
+                            element.classList.add('bg-yellow-200', 'transition-colors', 'duration-500');
+                            // 滚动到元素位置
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(() => {
+                                element.classList.remove('bg-yellow-200');
+                            }, 2000);
+                        }
+                    });
+                }, 500);
+            }
+        };
+
+        window.addEventListener('jumpToHighlight', handleJumpToHighlight as EventListener);
+        return () => {
+            window.removeEventListener('jumpToHighlight', handleJumpToHighlight as EventListener);
+        };
+    }, [setSearchText, performSearch]);
+
+    // 在其他 state 定义附近添加
+    const [bubbleCollapseMap, setBubbleCollapseMap] = useState<Record<string, boolean>>({});
+
+    // 切换折叠状态
+    const handleToggleCollapse = (threadId: string) => {
+        setBubbleCollapseMap(prev => ({ ...prev, [threadId]: !prev[threadId] }));
+    };
 
 
 	return (
@@ -474,6 +700,7 @@ export function PdfViewer(props: PdfViewerProps) {
 							pagesRef.current[index] = el;
 						}}
 						key={`page_container_${index + 1}`}
+						className="relative"
 					>
 						<Page
 							key={`page_${index + 1}`}
@@ -486,6 +713,8 @@ export function PdfViewer(props: PdfViewerProps) {
 							loading={<EnigmaticLoadingExperience />}
 							width={width > 0 ? width : undefined}
 						/>
+						{/* 渲染评论气泡 */}
+						{renderCommentBubbles()}
 					</div>
 				))}
 			</Document>
@@ -510,4 +739,4 @@ export function PdfViewer(props: PdfViewerProps) {
 			)}
 		</div>
 	);
-}
+});

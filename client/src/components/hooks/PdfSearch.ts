@@ -1,15 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getFuzzyMatchingNodesInPdf, getMatchingNodesInPdf } from "../utils/PdfTextUtils";
 
 export function usePdfSearch(explicitSearchTerm?: string) {
-    const [searchText, setSearchText] = useState("");
-    const [searchResults, setSearchResults] = useState<Array<{
-        pageIndex: number;
-        matchIndex: number;
-        nodes: Element[];
-    }>>([]);
+    const [searchText, setSearchText] = useState(explicitSearchTerm || "");
+    const [searchResults, setSearchResults] = useState<number[]>([]);
     const [currentMatch, setCurrentMatch] = useState(-1);
     const [notFound, setNotFound] = useState(false);
+
+    // 当 explicitSearchTerm 改变时更新搜索文本
+    useEffect(() => {
+        if (explicitSearchTerm) {
+            setSearchText(explicitSearchTerm);
+            performSearch();
+        }
+    }, [explicitSearchTerm]);
+
+    const performSearch = useCallback(() => {
+        console.log('Performing search with text:', searchText);
+        
+        const textNodes = document.querySelectorAll('.react-pdf__Page__textContent');
+        const results: number[] = [];
+
+        textNodes.forEach((node, pageIndex) => {
+            const text = node.textContent || '';
+            if (text.toLowerCase().includes(searchText.toLowerCase())) {
+                results.push(pageIndex);
+                console.log('Found match on page:', pageIndex + 1);
+            }
+        });
+
+        if (results.length > 0) {
+            setSearchResults(results);
+            setCurrentMatch(0);
+            setNotFound(false);
+
+            // 滚动到第一个匹配项
+            const firstMatch = results[0];
+            const pageElement = document.querySelector(`[data-page-number="${firstMatch + 1}"]`);
+            pageElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            setSearchResults([]);
+            setCurrentMatch(-1);
+            setNotFound(true);
+            console.log('No matches found');
+        }
+    }, [searchText]);
 
     const handleClearSearch = () => {
         setSearchText("");
@@ -23,47 +58,6 @@ export function usePdfSearch(explicitSearchTerm?: string) {
             span.classList.remove('bg-yellow-100', 'rounded', 'opacity-20');
         });
     };
-
-    const performSearch = (term?: string) => {
-        const textToSearch = term || searchText;
-        if (!textToSearch.trim()) {
-            setSearchResults([]);
-            setCurrentMatch(-1);
-            return;
-        }
-
-        setNotFound(false);
-        const results = getMatchingNodesInPdf(textToSearch);
-
-        if (results.length === 0) {
-            const fuzzyResults = getFuzzyMatchingNodesInPdf(textToSearch);
-            if (fuzzyResults.length > 0) {
-                results.push(...fuzzyResults);
-            } else {
-                setNotFound(true);
-            }
-        }
-
-        setSearchResults(results);
-        setCurrentMatch(results.length > 0 ? 0 : -1);
-
-        // Scroll to first match if found
-        if (results.length > 0) {
-            scrollToMatch(results[0]);
-        }
-    };
-
-    // Handle explicit search term if provided
-    useEffect(() => {
-        if (explicitSearchTerm !== undefined) {
-            if (explicitSearchTerm.trim() === '') {
-                // Clear search results and formatting when explicit search term is empty
-                handleClearSearch();
-            } else {
-                performSearch(explicitSearchTerm);
-            }
-        }
-    }, [explicitSearchTerm]);
 
     const scrollToMatch = (match: { pageIndex: number; matchIndex: number; nodes: Element[] }) => {
         if (!match) return;

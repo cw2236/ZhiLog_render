@@ -203,10 +203,10 @@ export default function PricingPage() {
             <div className="text-center space-y-6">
                 <div className="space-y-3">
                     <h1 className="text-4xl font-light tracking-tight text-slate-900 dark:text-slate-100">
-                        Research Plans
+                        研究计划
                     </h1>
                     <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                        Choose the plan that fits your research workflow. All plans include unlimited annotations and comprehensive note-taking capabilities.
+                        选择适合您研究工作流程的计划。所有计划都包含无限注释和全面笔记功能。
                     </p>
                 </div>
             </div>
@@ -271,10 +271,10 @@ export default function PricingPage() {
                             </div>
                             <div className="flex-1">
                                 <CardTitle className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                                    Your Research Plan
+                                    您的研究计划
                                 </CardTitle>
                                 <CardDescription className="text-sm text-slate-600 dark:text-slate-400">
-                                    {isActiveSubscription ? "Currently active" : "Subscription not active"}
+                                    {isActiveSubscription ? "当前激活" : "未激活订阅"}
                                 </CardDescription>
                             </div>
                             <Badge className={cn("font-normal", getStatusBadgeColor(subscriptionStatus))}>
@@ -286,22 +286,22 @@ export default function PricingPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                             <div className="text-center sm:text-left space-y-1">
                                 <div className="text-lg sm:text-xl font-medium text-slate-900 dark:text-slate-100">
-                                    Researcher Plan
+                                    研究员计划
                                 </div>
                                 <div className="text-sm text-slate-500 dark:text-slate-400">
-                                    Full access to all features
+                                    访问所有功能
                                 </div>
                             </div>
                             <div className="text-center space-y-1">
                                 <div className="text-lg sm:text-xl font-medium text-slate-900 dark:text-slate-100">
-                                    ${userSubscription?.subscription.interval === "year" ? annualPrice : monthlyPrice}
-                                    <span className="text-sm sm:text-base font-normal text-slate-500 dark:text-slate-400">/month</span>
+                                    {userSubscription?.subscription.interval === "year" ? annualPrice : monthlyPrice}
+                                    <span className="text-sm sm:text-base font-normal text-slate-500 dark:text-slate-400">/月</span>
                                 </div>
                                 <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                                    Billed {userSubscription?.subscription.interval === "year" ? "annually" : "monthly"}
+                                    按 {userSubscription?.subscription.interval === "year" ? "年" : "月"} 计费
                                     {isIntervalChangeLoading && (
                                         <Badge variant="secondary" className="ml-2 text-xs">
-                                            Updating...
+                                            更新中...
                                         </Badge>
                                     )}
                                 </div>
@@ -316,7 +316,7 @@ export default function PricingPage() {
                                     </span>
                                 </div>
                                 <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                                    {subscriptionStatus === 'canceled' || userSubscription?.subscription.cancel_at_period_end ? "Expires" : "Renews"}
+                                    {subscriptionStatus === 'canceled' || userSubscription?.subscription.cancel_at_period_end ? "到期" : "续费"}
                                 </div>
                             </div>
                         </div>
@@ -326,12 +326,12 @@ export default function PricingPage() {
                             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-3 sm:p-4">
                                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                                     <Clock className="h-4 w-4 flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Subscription Canceled</span>
+                                    <span className="font-medium text-sm sm:text-base">订阅已取消</span>
                                 </div>
                                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                    Your subscription will end on {userSubscription?.subscription.current_period_end &&
-                                        formatDate(userSubscription.subscription.current_period_end)}.
-                                    You can reactivate anytime before this date.
+                                    您的订阅将于 {userSubscription?.subscription.current_period_end &&
+                                        formatDate(userSubscription.subscription.current_period_end)} 到期。
+                                    您可以在此日期之前随时重新激活。
                                 </p>
                             </div>
                         )}
@@ -340,12 +340,12 @@ export default function PricingPage() {
                             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 sm:p-4">
                                 <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                                     <Clock className="h-4 w-4 flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Subscription Ending</span>
+                                    <span className="font-medium text-sm sm:text-base">订阅即将结束</span>
                                 </div>
                                 <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 mt-1">
-                                    Your subscription will end on {userSubscription?.subscription.current_period_end &&
-                                        formatDate(userSubscription.subscription.current_period_end)}.
-                                    You can reactivate anytime before this date.
+                                    您的订阅将于 {userSubscription?.subscription.current_period_end &&
+                                        formatDate(userSubscription.subscription.current_period_end)} 到期。
+                                    您可以在此日期之前随时重新激活。
                                 </p>
                             </div>
                         )}
@@ -354,10 +354,10 @@ export default function PricingPage() {
                             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 sm:p-4">
                                 <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                                     <Clock className="h-4 w-4 flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Payment Past Due</span>
+                                    <span className="font-medium text-sm sm:text-base">付款已逾期</span>
                                 </div>
                                 <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 mt-1">
-                                    Your payment is past due. Please update your payment method to continue your subscription.
+                                    您的付款已逾期。请更新您的付款方式以继续订阅。
                                 </p>
                             </div>
                         )}
@@ -366,10 +366,10 @@ export default function PricingPage() {
                             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-3 sm:p-4">
                                 <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                                     <Clock className="h-4 w-4 flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Payment Incomplete</span>
+                                    <span className="font-medium text-sm sm:text-base">付款未完成</span>
                                 </div>
                                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                    Your payment is incomplete. Please complete the payment process to activate your subscription.
+                                    您的付款未完成。请完成付款流程以激活您的订阅。
                                 </p>
                             </div>
                         )}
@@ -382,7 +382,7 @@ export default function PricingPage() {
                                     onClick={handleResubscribe}
                                     disabled={isResubscribeLoading}
                                 >
-                                    {isResubscribeLoading ? "Reactivating..." : "Reactivate Subscription"}
+                                    {isResubscribeLoading ? "重新激活中..." : "重新激活订阅"}
                                 </Button>
                             ) : (
                                 <Button
@@ -390,7 +390,7 @@ export default function PricingPage() {
                                     onClick={handleManageSubscription}
                                     disabled={isPortalLoading}
                                 >
-                                    {isPortalLoading ? "Loading..." : "Manage Subscription"}
+                                    {isPortalLoading ? "加载中..." : "管理订阅"}
                                 </Button>
                             )}
                         </div>
@@ -407,7 +407,7 @@ export default function PricingPage() {
                             "text-xs sm:text-sm font-medium transition-colors",
                             !isAnnual ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-400"
                         )}>
-                            Monthly
+                            月度
                         </span>
                         {isActiveSubscription ? (
                             <Dialog>
@@ -434,17 +434,17 @@ export default function PricingPage() {
                                 <DialogContent className="border-slate-200 dark:border-slate-700 mx-4">
                                     <DialogHeader>
                                         <DialogTitle className="text-slate-900 dark:text-slate-100">
-                                            Change Billing Cycle
+                                            更改计费周期
                                         </DialogTitle>
                                         <DialogDescription className="text-slate-600 dark:text-slate-400">
-                                            Switch from {isAnnual ? "annual" : "monthly"} to {isAnnual ? "monthly" : "annual"} billing.
-                                            The change will take effect at the end of your current billing cycle.
+                                            从 {isAnnual ? "年" : "月"} 切换到 {isAnnual ? "月" : "年"} 计费。
+                                            此更改将在当前计费周期结束时生效。
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="flex gap-3 mt-4">
                                         <DialogTrigger asChild>
                                             <Button variant="outline" className="flex-1">
-                                                Cancel
+                                                取消
                                             </Button>
                                         </DialogTrigger>
                                         <Button
@@ -452,7 +452,7 @@ export default function PricingPage() {
                                             onClick={() => handleIntervalChange(isAnnual ? "month" : "year")}
                                             disabled={isIntervalChangeLoading}
                                         >
-                                            {isIntervalChangeLoading ? "Changing..." : `Switch to ${isAnnual ? "Monthly" : "Annual"}`}
+                                            {isIntervalChangeLoading ? "更改中..." : `切换到 ${isAnnual ? "月度" : "年度"}`}
                                         </Button>
                                     </div>
                                 </DialogContent>
@@ -483,10 +483,10 @@ export default function PricingPage() {
                                 "text-xs sm:text-sm font-medium transition-colors",
                                 isAnnual ? "text-slate-900 dark:text-slate-100" : "text-slate-500 dark:text-slate-400"
                             )}>
-                                Annual
+                                年度
                             </span>
                             <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-0 text-xs px-2 py-0.5">
-                                Save 33%
+                                节省 33%
                             </Badge>
                         </div>
                     </div>
@@ -495,11 +495,11 @@ export default function PricingPage() {
                     {isCurrentlySubscribed && (
                         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
                             <Badge variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs">
-                                Current: {userSubscription?.subscription.interval === "year" ? "Annual" : "Monthly"}
+                                当前: {userSubscription?.subscription.interval === "year" ? "年度" : "月度"}
                             </Badge>
                             {isActiveSubscription && (
                                 <span className="text-xs text-slate-500 dark:text-slate-400 max-w-xs sm:max-w-none">
-                                    Click toggle to change
+                                    点击切换以更改
                                 </span>
                             )}
                         </div>
@@ -514,16 +514,16 @@ export default function PricingPage() {
                     <CardHeader className="pb-4">
                         <div className="space-y-2">
                             <CardTitle className="text-xl font-medium text-slate-900 dark:text-slate-100">
-                                Base
+                                基础
                             </CardTitle>
                             <CardDescription className="text-slate-600 dark:text-slate-400">
-                                Perfect for getting started with research
+                                适合开始研究
                             </CardDescription>
                         </div>
                         <div className="pt-4">
                             <div className="text-3xl font-light text-slate-900 dark:text-slate-100">
-                                $0
-                                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">/month</span>
+                                ¥0
+                                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">/月</span>
                             </div>
                         </div>
                     </CardHeader>
@@ -534,7 +534,7 @@ export default function PricingPage() {
                             onClick={() => { window.location.href = '/login' }}
                             disabled={isActiveSubscription}
                         >
-                            {isActiveSubscription ? "Researcher Plan Active" : "Get Started"}
+                            {isActiveSubscription ? "研究员计划已激活" : "开始使用"}
                         </Button>
                     </CardContent>
                 </Card>
@@ -553,39 +553,39 @@ export default function PricingPage() {
                                 ? "bg-blue-800 dark:bg-blue-200 text-white dark:text-slate-900"
                                 : "bg-blue-900 dark:bg-blue-100 text-white dark:text-slate-900"
                         )}>
-                            {isActiveSubscription ? "Your Plan" : "Recommended"}
+                            {isActiveSubscription ? "您的计划" : "推荐"}
                         </Badge>
                     </div>
                     <CardHeader className="pb-4">
                         <div className="space-y-2">
                             <div className="flex items-center gap-2">
                                 <CardTitle className="text-xl font-medium text-slate-900 dark:text-slate-100">
-                                    Researcher
+                                    研究员
                                 </CardTitle>
                                 {isActiveSubscription && (
                                     <CheckCircle className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                                 )}
                             </div>
                             <CardDescription className="text-slate-600 dark:text-slate-400">
-                                For independent researchers and academics
+                                适用于独立研究人员和学者
                             </CardDescription>
                         </div>
                         <div className="pt-4">
                             <div className="text-3xl font-light text-slate-900 dark:text-slate-100">
-                                ${isAnnual ? annualPrice : monthlyPrice}
-                                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">/month</span>
+                                {isAnnual ? annualPrice : monthlyPrice}
+                                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">/月</span>
                             </div>
                             {isAnnual && (
                                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                    Billed annually at ${annualPrice * 12}/year
+                                    按年度计费，年费 ¥{annualPrice * 12}
                                 </p>
                             )}
                         </div>
                         {isActiveSubscription && (
                             <Badge variant="outline" className="w-fit mt-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400">
-                                Active since {userSubscription?.subscription.current_period_start &&
+                                自 {userSubscription?.subscription.current_period_start &&
                                     formatDate(userSubscription.subscription.current_period_start)
-                                }
+                                } 激活
                             </Badge>
                         )}
                     </CardHeader>
@@ -607,10 +607,10 @@ export default function PricingPage() {
                             disabled={isActiveSubscription || isResubscribeLoading}
                         >
                             {isActiveSubscription
-                                ? "Current Plan"
+                                ? "当前计划"
                                 : canResubscribe
-                                    ? (isResubscribeLoading ? "Reactivating..." : "Reactivate Subscription")
-                                    : "Upgrade to Researcher"}
+                                    ? (isResubscribeLoading ? "重新激活中..." : "重新激活订阅")
+                                    : "升级到研究员"}
                         </Button>
                     </CardContent>
                 </Card>
@@ -628,22 +628,22 @@ export default function PricingPage() {
                 <Card className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 opacity-60 relative">
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                         <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-0">
-                            Coming Soon
+                            即将推出
                         </Badge>
                     </div>
                     <CardHeader className="pb-4">
                         <div className="space-y-2">
                             <CardTitle className="text-xl font-medium text-slate-900 dark:text-slate-100">
-                                Teams
+                                团队
                             </CardTitle>
                             <CardDescription className="text-slate-600 dark:text-slate-400">
-                                For research teams and organizations
+                                适用于研究团队和组织
                             </CardDescription>
                         </div>
                         <div className="pt-4">
                             <div className="text-3xl font-light text-slate-900 dark:text-slate-100">
-                                TBD
-                                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">/month</span>
+                                待定
+                                <span className="text-lg font-normal text-slate-500 dark:text-slate-400">/月</span>
                             </div>
                         </div>
                     </CardHeader>
@@ -653,7 +653,7 @@ export default function PricingPage() {
                             variant="outline"
                             disabled
                         >
-                            Coming Soon
+                            即将推出
                         </Button>
                     </CardContent>
                 </Card>
@@ -671,29 +671,29 @@ export default function PricingPage() {
             <div className="text-center space-y-6 pt-12 border-t border-slate-200 dark:border-slate-700">
                 <div className="space-y-3">
                     <h3 className="text-xl font-medium text-slate-900 dark:text-slate-100">
-                        Questions about pricing?
+                        关于定价的问题？
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                        We&apos;re here to help you find the right plan for your research needs.
-                        Our team understands the unique requirements of academic work.
+                        我们在这里帮助您找到适合您研究需求的计划。
+                        我们的团队了解学术工作的独特要求。
                     </p>
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button variant="outline" className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
-                            Contact Support
+                            联系支持
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="border-slate-200 dark:border-slate-700">
                         <DialogHeader>
-                            <DialogTitle className="text-slate-900 dark:text-slate-100">Contact Support</DialogTitle>
+                            <DialogTitle className="text-slate-900 dark:text-slate-100">联系支持</DialogTitle>
                             <DialogDescription className="text-slate-600 dark:text-slate-400">
-                                If you have any questions about our pricing or need help choosing a plan, please reach out to us.
+                                如果您对我们的定价有任何问题或需要帮助选择计划，请联系我们。
                             </DialogDescription>
                         </DialogHeader>
                         <div className="mt-4">
                             <p className="text-sm text-slate-600 dark:text-slate-400">
-                                You can email us at{" "}
+                                您可以发送邮件至{" "}
                                 <a href="mailto:saba@openpaper.ai" className="text-slate-900 dark:text-slate-100 underline underline-offset-2">
                                     saba@openpaper.ai
                                 </a>

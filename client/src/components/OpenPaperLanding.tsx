@@ -76,7 +76,7 @@ export default function OpenPaperLanding() {
                         size="sm"
                         asChild
                     >
-                        <Link href="/login">Sign In</Link>
+                        <Link href="/login">Login</Link>
                     </Button>
                 </nav>
 
@@ -117,7 +117,7 @@ export default function OpenPaperLanding() {
                                 asChild
                                 className="mt-4"
                             >
-                                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
                             </Button>
                         </nav>
                     </SheetContent>
@@ -137,10 +137,7 @@ export default function OpenPaperLanding() {
                                         Research-Grade AI
                                     </Badge>
                                     <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                                        Read Research Papers,{" "}
-                                        <span className="text-primary">
-                                            Supercharged with AI
-                                        </span>
+                                        Read Research Papers, <span className="text-primary">Supercharged with AI</span>
                                     </h1>
                                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
                                         Read, annotate, and understand papers. Use an AI assistant with contextual citations for responses you can trust.
@@ -194,8 +191,8 @@ export default function OpenPaperLanding() {
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="text-xs text-muted-foreground">
-                                                    <p>✓ Paper analyzed</p>
-                                                    <p>✓ 47 citations verified</p>
+                                                    <p>✓ Paper analysis</p>
+                                                    <p>✓ 47 citation verifications</p>
                                                     <p>✓ Audio summary ready</p>
                                                     <p>✓ Annotations created</p>
                                                 </div>
@@ -392,8 +389,7 @@ export default function OpenPaperLanding() {
                                 </CardHeader>
                                 <CardContent className="relative z-10">
                                     <p className="text-muted-foreground">
-                                        Reading 100+ papers takes weeks. Deadlines don&rsquo;t wait. You need efficient ways to process literature
-                                        without missing key insights.
+                                        Reading 100+ papers takes weeks. Deadlines don’t wait. You need efficient ways to process literature without missing key insights.
                                     </p>
                                 </CardContent>
                             </Card>
@@ -407,8 +403,7 @@ export default function OpenPaperLanding() {
                                 </CardHeader>
                                 <CardContent className="relative z-10">
                                     <p className="text-muted-foreground">
-                                        Thousands of papers published daily. Hard to separate relevant studies from noise. Manual screening
-                                        is exhausting and error-prone.
+                                        Thousands of papers published daily. Hard to separate relevant studies from noise. Manual screening is exhausting and error-prone.
                                     </p>
                                 </CardContent>
                             </Card>
@@ -422,8 +417,7 @@ export default function OpenPaperLanding() {
                                 </CardHeader>
                                 <CardContent className="relative z-10">
                                     <p className="text-muted-foreground">
-                                        Keeping track of sources, page numbers, and exact quotes. Academic integrity requires precise
-                                        attribution that&rsquo;s easy to lose track of.
+                                        Keeping track of sources, page numbers, and exact quotes. Academic integrity requires precise attribution that’s easy to lose track of.
                                     </p>
                                 </CardContent>
                             </Card>
@@ -454,8 +448,7 @@ export default function OpenPaperLanding() {
                                     </Badge>
                                     <h3 className="text-2xl font-bold">Read Papers Side-by-Side with AI</h3>
                                     <p className="text-muted-foreground">
-                                        Never lose context while reading. Our split-pane interface keeps your paper and AI chat
-                                        visible simultaneously, making it easy to ask questions and get instant, cited responses.
+                                        Never lose context while reading. Our split-pane interface keeps your paper and AI chat visible simultaneously, making it easy to ask questions and get instant, cited responses.
                                     </p>
                                     <ul className="space-y-2 text-sm">
                                         <li className="flex items-center gap-2">
@@ -487,25 +480,24 @@ export default function OpenPaperLanding() {
                                 <div className="space-y-4">
                                     <Badge variant="outline" className="w-fit border-green-500/30 text-green-500">
                                         <MessageSquareText className="w-3 h-3 mr-1" />
-                                        Grounded Responses
+                                        Grounded Citations
                                     </Badge>
                                     <h3 className="text-2xl font-bold">Trust Every AI Response</h3>
                                     <p className="text-muted-foreground">
-                                        Every AI answer includes precise citations that link back to specific sections in your paper.
-                                        Click any citation to jump directly to the source material for verification.
+                                        Each AI response includes precise citations, which link to specific sections of your paper. Click any citation to directly jump to the source material for verification.
                                     </p>
                                     <ul className="space-y-2 text-sm">
                                         <li className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-green-500" />
-                                            <span>Clickable citations to source</span>
+                                            <span>Clickable citations</span>
                                         </li>
                                         <li className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-green-500" />
-                                            <span>Page-specific references</span>
+                                            <span>Page-specific citations</span>
                                         </li>
                                         <li className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-green-500" />
-                                            <span>Academic integrity built-in</span>
+                                            <span>Built-in academic integrity</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -526,10 +518,9 @@ export default function OpenPaperLanding() {
                                         <Highlighter className="w-3 h-3 mr-1" />
                                         Smart Annotations
                                     </Badge>
-                                    <h3 className="text-2xl font-bold">Highlight and Annotate Seamlessly</h3>
+                                    <h3 className="text-2xl font-bold">Seamless Highlighting and Annotation</h3>
                                     <p className="text-muted-foreground">
-                                        Select text to instantly highlight and add notes. Your annotations sync across devices
-                                        and integrate with the AI chat for contextual discussions about your highlights.
+                                        Select text to highlight and add annotations immediately. Your annotations sync across devices and integrate with your chat, allowing you to discuss your highlights in context.
                                     </p>
                                     <ul className="space-y-2 text-sm">
                                         <li className="flex items-center gap-2">
@@ -542,7 +533,7 @@ export default function OpenPaperLanding() {
                                         </li>
                                         <li className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-purple-500" />
-                                            <span>Cross-device synchronization</span>
+                                            <span>Cross-device sync</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -561,17 +552,16 @@ export default function OpenPaperLanding() {
                                 <div className="space-y-4">
                                     <Badge variant="outline" className="w-fit border-orange-500/30 text-orange-500">
                                         <Mic2 className="w-3 h-3 mr-1" />
-                                        Audio Summaries
+                                        Audio Summary
                                     </Badge>
-                                    <h3 className="text-2xl font-bold">Listen to Research On-the-Go</h3>
+                                    <h3 className="text-2xl font-bold">Listen to Research on the Move</h3>
                                     <p className="text-muted-foreground">
-                                        Transform dense academic papers into engaging audio summaries. Perfect for commutes,
-                                        workouts, or when you need to absorb information hands-free.
+                                        Convert dense academic papers into engaging audio summaries. Perfect for commutes, workouts, or when you need your hands free to absorb information.
                                     </p>
                                     <ul className="space-y-2 text-sm">
                                         <li className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-orange-500" />
-                                            <span>Natural voice synthesis</span>
+                                            <span>Natural speech synthesis</span>
                                         </li>
                                         <li className="flex items-center gap-2">
                                             <CheckCircle className="w-4 h-4 text-orange-500" />
@@ -598,12 +588,11 @@ export default function OpenPaperLanding() {
                                 <div className="space-y-4">
                                     <Badge variant="outline" className="w-fit border-indigo-500/30 text-indigo-500">
                                         <Search className="w-3 h-3 mr-1" />
-                                        Discovery
+                                        Discover
                                     </Badge>
-                                    <h3 className="text-2xl font-bold">Discover Connected Research</h3>
+                                    <h3 className="text-2xl font-bold">Discover Related Research</h3>
                                     <p className="text-muted-foreground">
-                                        Find papers that build on your current research. Our semantic search understands context
-                                        and relationships between studies, helping you discover relevant work you might have missed.
+                                        Find papers relevant to your current research. Our semantic search understands context and research relationships to help you discover potentially missed related work.
                                     </p>
                                     <ul className="space-y-2 text-sm">
                                         <li className="flex items-center gap-2">
@@ -638,11 +627,10 @@ export default function OpenPaperLanding() {
                     <div className="container px-4 md:px-6 max-w-6xl mx-auto">
                         <div className="text-center mb-12">
                             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-                                Built in the <span className="text-primary">Open</span>
+                                Built on <span className="text-primary">Open Source</span>
                             </h2>
                             <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">
-                                Reliable research deserves transparent tools. Our entire platform is open-source, peer-reviewable, and
-                                community-driven.
+                                Reliable research requires transparent tools. Our entire platform is open source, peer-reviewed, and community-driven.
                             </p>
                         </div>
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -653,8 +641,7 @@ export default function OpenPaperLanding() {
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-muted-foreground mb-4">
-                                        All code is available on GitHub. Inspect, modify, and contribute to the
-                                        codebase that powers your research.
+                                        All code is available on GitHub. Check, modify, and contribute to your research codebase.
                                     </p>
                                     <Button
                                         variant="outline"
@@ -663,7 +650,7 @@ export default function OpenPaperLanding() {
                                     >
                                         <a href="https://github.com/khoj-ai/openpaper" target="_blank" rel="noopener noreferrer">
                                             <GithubIcon className="w-4 h-4 mr-2" />
-                                            View on GitHub
+                                            View GitHub
                                         </a>
                                     </Button>
                                 </CardContent>
@@ -676,8 +663,7 @@ export default function OpenPaperLanding() {
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-muted-foreground mb-4">
-                                        Every summary is made with an open-source prompt, known data sources, and an observable model. Full reproducibility for
-                                        academic standards.
+                                        Each summary is crafted using open-source prompts, known data sources, and observable models. Full reproducibility for academic standards.
                                     </p>
                                     <Button
                                         variant="outline"
@@ -698,7 +684,7 @@ export default function OpenPaperLanding() {
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-muted-foreground mb-4">
-                                        Researchers contribute improvements, report issues, and help shape the roadmap. Built by researchers, for researchers.
+                                        Researchers contribute improvements, report issues, and help shape the roadmap. Built for researchers by researchers.
                                     </p>
                                     <Button
                                         variant="outline"
@@ -721,11 +707,10 @@ export default function OpenPaperLanding() {
                         <div className="flex flex-col items-center justify-center space-y-8 text-center">
                             <div className="space-y-4">
                                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                                    Ready to <span className="text-primary">Supercharge</span> Your Research?
+                                    Ready to <span className="text-primary">Supercharge</span> your research?
                                 </h2>
                                 <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl">
-                                    Join researchers who trust Open Paper for reliable, cited, and transparent research analysis.
-                                    Start your free trial today.
+                                    Join researchers who trust Open Paper for reliable, cited, and transparent research analysis. Start your free trial now.
                                 </p>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4">
@@ -745,7 +730,7 @@ export default function OpenPaperLanding() {
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-muted-foreground text-sm">
                                 <div className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4 text-primary" />
-                                    No credit card required
+                                    No credit card needed
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4 text-primary" />
@@ -782,7 +767,7 @@ export default function OpenPaperLanding() {
                         Terms of Service
                     </Link>
                     <Link href="https://github.com/khoj-ai/openpaper" className="text-xs hover:underline underline-offset-4 text-muted-foreground hover:text-primary">
-                        GitHub
+                        View GitHub
                     </Link>
                     <Link href="/blog/manifesto" className="text-xs hover:underline underline-offset-4 text-muted-foreground hover:text-primary">
                         Manifesto

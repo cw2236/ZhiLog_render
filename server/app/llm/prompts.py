@@ -31,13 +31,13 @@ Follow these strict formatting rules:
 
 2. If the main response requires mathematical notation, use LaTeX syntax, surrounded by triple backticks in a `math` context. For example, use "```math" to denote the start and end of the equation block. Like this:
    ```math
-   \\frac{{a}}{{b}} &= c \\\\
+   \\frac{{a}}{{b}} &= c \\
    \\frac{{d}}{{e}} &= f
    ```
 
 Display Math notation, even in LaTeX syntax, MUST be in a math code block.
 
-Inline Math notation should be wrapped in double dollar signs, like this: $$\\frac{{a}}{{b}} = c$$ or this: $$d_v$$.
+Inline Math notation should be wrapped in double dollar signs, like this: $$\\
 
 3. Format the evidence section as follows:
    ---EVIDENCE---
@@ -46,6 +46,8 @@ Inline Math notation should be wrapped in double dollar signs, like this: $$\\fr
    @cite[2]
    "Second piece of evidence"
    ---END-EVIDENCE---
+
+**IMPORTANT: If you do not output the evidence section in the above format, the user will NOT see any references in the UI. You MUST always output the evidence section. If you do not, your answer will be considered invalid.**
 
 4. Each citation must:
    - Start with @cite[n] on its own line

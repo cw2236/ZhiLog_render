@@ -85,7 +85,7 @@ export default function Annotation({
                             className="min-h-[80px] bg-muted/50 dark:bg-muted/30 border-border focus:bg-background dark:focus:bg-card"
                             onClick={(e) => e.stopPropagation()}
                             autoFocus
-                            placeholder="Write your annotation..."
+                            placeholder="写下你的注释..."
                         />
 
                         <div className="flex items-center justify-end gap-2">
@@ -96,7 +96,7 @@ export default function Annotation({
                                 className="text-muted-foreground hover:text-foreground"
                             >
                                 <X size={14} className="mr-1" />
-                                Cancel
+                                取消
                             </Button>
                             <Button
                                 size="sm"
@@ -104,7 +104,7 @@ export default function Annotation({
                                 className="bg-primary hover:bg-primary/90"
                             >
                                 <Check size={14} className="mr-1" />
-                                Save
+                                保存
                             </Button>
                         </div>
                     </div>
@@ -140,7 +140,21 @@ export default function Annotation({
                         ) : user?.picture ? (
                             <Avatar className="h-8 w-8">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={user.picture} alt={user.name} className="w-full h-full object-cover" />
+                                <img 
+                                    src={user.picture} 
+                                    alt={user.name} 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // 如果头像加载失败，隐藏图片，显示默认图标
+                                        e.currentTarget.style.display = 'none';
+                                        const avatar = e.currentTarget.closest('.h-8');
+                                        const userIcon = avatar?.querySelector('.user-icon-annotation');
+                                        if (userIcon) {
+                                            userIcon.classList.remove('hidden');
+                                        }
+                                    }}
+                                />
+                                <UserIcon size={16} className="text-muted-foreground user-icon-annotation hidden" />
                             </Avatar>
                         ) : (
                             <UserIcon size={16} className="text-muted-foreground" />

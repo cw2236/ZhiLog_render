@@ -57,7 +57,7 @@ const items = [
     },
     {
         title: "Feedback",
-        url: "https://github.com/khoj-ai/openpaper/issues",
+        url: "https://zhilog.framer.website/",
         icon: MessageCircleQuestion,
         requiresAuth: false,
     }
@@ -166,177 +166,197 @@ export function AppSidebar() {
     }, [currentWarning?.key, dismissedWarning]);
 
     return (
-        <Sidebar variant="floating">
+        <Sidebar className="modern-sidebar">
             <SidebarContent>
+                {/* Logo 区域 */}
+                <SidebarGroup className="p-4">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+                            <img src="/ZhiLog%20Logo%20.jpg" alt="ZhiLog" className="w-6 h-6 rounded" />
+                        </div>
+                        <div>
+                            <h1 className="text-lg font-bold gradient-text">ZhiLog</h1>
+                            <p className="text-xs text-muted-foreground">Your AI Learning Companion</p>
+                        </div>
+                    </div>
+                </SidebarGroup>
+
+                {/* 主导航 */}
                 <SidebarGroup>
-                    <SidebarGroupLabel className="flex items-center gap-2">
-                        <Image
-                            src="/openpaper.svg"
-                            width={24}
-                            height={24}
-                            alt="Open Paper Logo"
-                        />
-                        <span className="text-sm font-semibold">Open Paper</span>
+                    <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Navigation
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild>
-                                            <a href={item.requiresAuth && !user ? "/login" : item.url}>
-                                                <item.icon />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
+                                    <SidebarMenuButton asChild>
+                                        <Link
+                                            href={item.url}
+                                            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-sidebar-accent transition-colors duration-200"
+                                        >
+                                            <item.icon className="h-5 w-5" />
+                                            <span className="font-medium">{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
-                            {
-                                allPapers && allPapers.length > 0 && (
-                                    <SidebarMenuItem>
-                                        <SidebarMenuButton>
-                                            <Clock size={16} />
-                                            <span>Queue</span>
-                                        </SidebarMenuButton>
-                                        <SidebarMenuSub>
-                                            {
-                                                allPapers.map((paper) => (
-                                                    <SidebarMenuSubItem key={paper.id}>
-                                                        <SidebarMenuSubButton asChild>
-                                                            <a
-                                                                href={`/paper/${paper.id}`}
-                                                                className="text-xs font-medium w-full h-fit my-1"
-                                                            >
-                                                                {paper.title}
-                                                            </a>
-                                                        </SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                ))
-                                            }
-                                        </SidebarMenuSub>
-                                    </SidebarMenuItem>
-                                )
-                            }
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
+
+                {/* 最近论文 */}
+                {user && allPapers.length > 0 && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Recent Papers
+                        </SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {allPapers.slice(0, 5).map((paper) => (
+                                    <SidebarMenuItem key={paper.id}>
+                                        <SidebarMenuButton asChild>
+                                            <Link
+                                                href={`/paper/${paper.id}`}
+                                                className="flex items-start gap-3 px-4 py-3 rounded-lg hover:bg-sidebar-accent transition-colors duration-200 group"
+                                            >
+                                                <div className="w-8 h-8 bg-gradient-to-br from-muted to-muted/80 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium truncate group-hover:text-sidebar-foreground transition-colors">
+                                                        {paper.title}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground truncate">
+                                                        {paper.authors?.slice(0, 2).join(", ")}
+                                                    </p>
+                                                </div>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
             </SidebarContent>
-            <SidebarFooter>
-                {/* Subscription Warning */}
-                {shouldShowWarning && (
-                    <div className="mb-2">
-                        <Alert variant={currentWarning.type === 'error' ? 'destructive' : 'warning'} className="p-3">
-                            <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-start gap-2 flex-1 min-w-0">
-                                    <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                                    <div className="flex-1 min-w-0">
-                                        <div className="text-xs font-medium mb-1">
-                                            {currentWarning.title}
-                                        </div>
-                                        <AlertDescription className="text-xs">
-                                            {currentWarning.description}
-                                        </AlertDescription>
-                                        <Link href="/pricing" className="inline-block mt-2">
-                                            <Button size="sm" variant="outline" className="h-6 text-xs px-2">
-                                                Upgrade Plan
-                                            </Button>
-                                        </Link>
-                                    </div>
+
+            {/* 底部用户区域 */}
+            <SidebarFooter className="p-4 border-t border-sidebar-border/50">
+                <div className="flex items-center justify-between">
+                    {/* 用户信息 */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 rounded-lg hover:bg-sidebar-accent">
+                                <Avatar className="h-8 w-8">
+                                    {user?.picture ? (
+                                        <img
+                                            src={user.picture}
+                                            alt={user.name}
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                const avatar = e.currentTarget.closest('.h-8');
+                                                const userIcon = avatar?.querySelector('.user-icon');
+                                                if (userIcon) {
+                                                    userIcon.classList.remove('hidden');
+                                                }
+                                            }}
+                                        />
+                                    ) : null}
+                                    <User size={16} className="text-muted-foreground user-icon" />
+                                </Avatar>
+                                <div className="flex-1 text-left">
+                                    <p className="text-sm font-medium truncate">{user?.name || "User"}</p>
+                                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                                 </div>
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="modern-card w-64" align="start">
+                            <div className="flex items-center gap-3 p-2">
+                                <Avatar className="h-10 w-10">
+                                    {user?.picture ? (
+                                        <img
+                                            src={user.picture}
+                                            alt={user.name}
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                const avatar = e.currentTarget.closest('.h-10');
+                                                const userIcon = avatar?.querySelector('.user-icon-large');
+                                                if (userIcon) {
+                                                    userIcon.classList.remove('hidden');
+                                                }
+                                            }}
+                                        />
+                                    ) : null}
+                                    <User size={24} className="text-muted-foreground user-icon-large" />
+                                </Avatar>
+                                <div>
+                                    <p className="font-medium">{user?.name || "User"}</p>
+                                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                                </div>
+                            </div>
+                            <div className="border-t border-border/50 mt-2 pt-2">
                                 <Button
                                     variant="ghost"
-                                    size="sm"
-                                    className="h-4 w-4 p-0 hover:bg-transparent"
-                                    onClick={() => setDismissedWarning(currentWarning.key)}
+                                    onClick={handleLogout}
+                                    className="w-full justify-start text-destructive hover:text-destructive"
                                 >
-                                    <X className="h-3 w-3" />
+                                    <LogOut className="h-4 w-4 mr-2" />
+                                    Sign Out
                                 </Button>
                             </div>
-                        </Alert>
-                    </div>
-                )}
+                        </PopoverContent>
+                    </Popover>
 
-                {/* User Status Badge */}
-                {user && (
-                    <div className="px-2 py-1">
-                        <Badge
-                            variant={user.is_active ? "default" : "secondary"}
-                            className={`w-fit justify-center ${user.is_active ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200" : "bg-gray-100 text-gray-800"}`}
-                        >
-                            {user.is_active ? "Researcher" : "Basic"}
-                        </Badge>
-                    </div>
-                )}
+                    {/* 主题切换 */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={toggleDarkMode}
+                        className="h-8 w-8 rounded-lg hover:bg-sidebar-accent"
+                    >
+                        {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </Button>
+                </div>
 
-                {/* User Profile (if logged in) */}
-                {user && (
-                    <SidebarMenuItem className="mb-2">
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <SidebarMenuButton className="flex items-center gap-2">
-                                    <Avatar className="h-6 w-6">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        {user.picture ? (<img src={user.picture} alt={user.name} /> ) : ( <User size={16} /> )}
-                                    </Avatar>
-                                    <span className="truncate">{user.name}</span>
-                                </SidebarMenuButton>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-60 p-4" align="start">
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-10 w-10">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            {user.picture ? ( <img src={user.picture} alt={user.name} /> ) : ( <User size={24} />)}
-                                        </Avatar>
-                                        <div>
-                                            <h3 className="font-medium">{user.name}</h3>
-                                            <p className="text-sm text-muted-foreground">{user.email}</p>
-                                        </div>
-                                    </div>
-                                    <Link href="/pricing" className="w-full">
-                                        <Button
-                                            variant="outline"
-                                            className="w-full justify-start"
-                                        >
-                                            <Route size={16} className="mr-2" />
-                                            Plans
-                                        </Button>
-                                    </Link>
-                                    {/* Dark Mode Toggle */}
-                                    <Button onClick={toggleDarkMode} className="w-full justify-start">
-                                        {darkMode ? <Sun size={16} className="mr-2" /> : <Moon size={16} className="mr-2" />}
-                                        {darkMode ? 'Light Mode' : 'Dark Mode'}
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full justify-start"
-                                        onClick={handleLogout}
-                                    >
-                                        <LogOut size={16} className="mr-2" />
-                                        Sign out
-                                    </Button>
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                    </SidebarMenuItem>
-                )}
-
-                {/* Login button (if not logged in) */}
-                {!user && (
-                    <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <a
-                                href="/login"
-                                className="w-full flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-md transition-colors"
-                            >
-                                <User size={16} />
-                                <span className="font-medium">Sign In</span>
-                            </a>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
+                {/* 订阅警告 */}
+                {subscription && !subscriptionLoading && (
+                    <>
+                        {isStorageAtLimit(subscription) && (
+                            <Alert className="mt-3 modern-card border-destructive/20">
+                                <AlertTriangle className="h-4 w-4 text-destructive" />
+                                <AlertDescription className="text-xs">
+                                    Storage limit reached. Please upgrade or delete some papers.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        {isPaperUploadAtLimit(subscription) && (
+                            <Alert className="mt-3 modern-card border-destructive/20">
+                                <AlertTriangle className="h-4 w-4 text-destructive" />
+                                <AlertDescription className="text-xs">
+                                    Monthly upload limit reached. Please upgrade your plan.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        {isStorageNearLimit(subscription) && !dismissedWarning?.includes('storage') && (
+                            <Alert className="mt-3 modern-card border-yellow-500/20">
+                                <Clock className="h-4 w-4 text-yellow-500" />
+                                <AlertDescription className="text-xs">
+                                    Storage nearly full. Consider upgrading.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        {isPaperUploadNearLimit(subscription) && !dismissedWarning?.includes('upload') && (
+                            <Alert className="mt-3 modern-card border-yellow-500/20">
+                                <Clock className="h-4 w-4 text-yellow-500" />
+                                <AlertDescription className="text-xs">
+                                    Monthly upload limit approaching. Consider upgrading.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                    </>
                 )}
             </SidebarFooter>
         </Sidebar>
-    )
+    );
 }

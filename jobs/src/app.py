@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import logging
 
-from src.celery_app import celery_app
+from celery_app import celery_app
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -143,4 +143,4 @@ async def get_worker_status():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

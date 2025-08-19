@@ -168,26 +168,28 @@ class S3Service:
                 ExpiresIn=expiration,
             )
 
-            # Replace the S3 URL with Cloudflare URL
-            if url.startswith(f"https://{self.bucket_name}.s3.amazonaws.com/"):
-                url = url.replace(
-                    f"https://{self.bucket_name}.s3.amazonaws.com/",
-                    f"https://{self.cloudflare_bucket_name}/",
-                )
-            elif url.startswith(
-                f"https://{self.bucket_name}.s3.us-east-1.amazonaws.com/"
-            ):
-                url = url.replace(
-                    f"https://{self.bucket_name}.s3.us-east-1.amazonaws.com/",
-                    f"https://{self.cloudflare_bucket_name}/",
-                )
-            elif url.startswith(
-                f"https://{self.bucket_name}.s3.{AWS_REGION}.amazonaws.com/"
-            ):
-                url = url.replace(
-                    f"https://{self.bucket_name}.s3.{AWS_REGION}.amazonaws.com/",
-                    f"https://{self.cloudflare_bucket_name}/",
-                )
+            # Only replace with Cloudflare URL if CLOUDFLARE_BUCKET_NAME is properly configured
+            if self.cloudflare_bucket_name and self.cloudflare_bucket_name != "your_cloudflare_bucket_name_here":
+                # Replace the S3 URL with Cloudflare URL
+                if url.startswith(f"https://{self.bucket_name}.s3.amazonaws.com/"):
+                    url = url.replace(
+                        f"https://{self.bucket_name}.s3.amazonaws.com/",
+                        f"https://{self.cloudflare_bucket_name}/",
+                    )
+                elif url.startswith(
+                    f"https://{self.bucket_name}.s3.us-east-1.amazonaws.com/"
+                ):
+                    url = url.replace(
+                        f"https://{self.bucket_name}.s3.us-east-1.amazonaws.com/",
+                        f"https://{self.cloudflare_bucket_name}/",
+                    )
+                elif url.startswith(
+                    f"https://{self.bucket_name}.s3.{AWS_REGION}.amazonaws.com/"
+                ):
+                    url = url.replace(
+                        f"https://{self.bucket_name}.s3.{AWS_REGION}.amazonaws.com/",
+                        f"https://{self.cloudflare_bucket_name}/",
+                    )
 
             return url
         except ClientError as e:
@@ -196,24 +198,36 @@ class S3Service:
 
     def get_file_size_in_kb(self, object_key: str) -> Optional[int]:
         """
-        Get the size of a file in KB from S3
+        Get the size of a file in KB from S3 or local storage
 
         Args:
-            object_key: The S3 object key
-            db: Database session
-            paper_id: The paper ID to cache the size for
-            current_user: Current user for ownership verification
+            object_key: The S3 object key or local file path
 
         Returns:
             int: Size in KB or None if error
         """
         try:
+            # Check if this is a local file path (starts with file://)
+            if object_key.startswith("file://"):
+                file_path = object_key[7:]  # Remove "file://" prefix
+                if os.path.exists(file_path):
+                    size_in_bytes = os.path.getsize(file_path)
+                    size_in_kb = size_in_bytes // 1024
+                    return size_in_kb
+                else:
+                    logger.error(f"Local file not found: {file_path}")
+                    return None
+            
+            # Otherwise, treat as S3 object key
             response = self.s3_client.head_object(
                 Bucket=self.bucket_name, Key=object_key
             )
             size_in_kb = response.get("ContentLength", 0) // 1024
             return size_in_kb
         except ClientError as e:
+            logger.error(f"Error getting file size for {object_key}: {e}")
+            return None
+        except Exception as e:
             logger.error(f"Error getting file size for {object_key}: {e}")
             return None
 

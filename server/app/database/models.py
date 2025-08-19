@@ -614,3 +614,37 @@ class Subscription(Base):
 
     # Relationship with User
     user = relationship("User", back_populates="subscription")
+
+
+class ChatHistory(Base):
+    __tablename__ = "chat_histories"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    paper_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("papers.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    chat_type = Column(String, nullable=False)  # 'overview' or 'comment'
+    thread_id = Column(String, nullable=True)  # For comment-style chat
+    role = Column(String, nullable=False)  # 'user' or 'assistant'
+    message = Column(Text, nullable=False)
+    references = Column(JSONB, nullable=True)  # For citations/references
+    sequence = Column(Integer, nullable=False)  # Message order in thread
+
+    user = relationship("User", back_populates="chat_histories")
+    paper = relationship("Paper", back_populates="chat_histories")
+
+# Add relationships to User and Paper models
+User.chat_histories = relationship(
+    "ChatHistory", back_populates="user", cascade="all, delete-orphan"
+)
+
+Paper.chat_histories = relationship(
+    "ChatHistory", back_populates="paper", cascade="all, delete-orphan"
+)

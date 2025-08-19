@@ -131,15 +131,15 @@ export default function PaperCard({ paper, handleDelete, setPaper }: PaperCardPr
                                                 </Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
-                                                <AlertDialogTitle>Delete Paper</AlertDialogTitle>
+                                                <AlertDialogTitle>删除论文</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    Are you sure you want to delete {paper.title}?
-                                                    This action cannot be undone.
+                                                    你确定要删除 {paper.title} 吗？
+                                                    此操作无法撤销。
                                                 </AlertDialogDescription>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogCancel>取消</AlertDialogCancel>
                                                     <AlertDialogAction onClick={() => handleDelete(paper.id)}>
-                                                        Delete
+                                                        删除
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -221,7 +221,7 @@ export default function PaperCard({ paper, handleDelete, setPaper }: PaperCardPr
                             {/* Abstract/Summary text overlay */}
                             <div className="mt-2">
                                 <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-9">
-                                    {paper.abstract || paper.summary || "This paper explores innovative approaches and methodologies in research..."}
+                                    {paper.abstract || paper.summary || "本文探讨了研究中的创新方法和方法论..."}
                                 </p>
                             </div>
                         </div>

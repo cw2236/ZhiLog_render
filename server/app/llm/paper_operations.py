@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 from app.database.crud.message_crud import message_crud
 from app.database.database import get_db
 from app.helpers.s3 import s3_service
+import os
 
 
 class PaperOperations(BaseLLMClient):
@@ -71,7 +72,20 @@ class PaperOperations(BaseLLMClient):
             )
 
         # Retrieve and encode the PDF byte
-        pdf_bytes = httpx.get(signed_url).content
+        try:
+            with httpx.Client(verify=False, timeout=30.0) as client:
+                response = client.get(signed_url)
+                response.raise_for_status()
+                pdf_bytes = response.content
+        except httpx.ConnectError as e:
+            logger.error(f"Connection error fetching PDF from S3: {e}")
+            raise ValueError(f"Failed to connect to S3: {str(e)}")
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error fetching PDF from S3: {e}")
+            raise ValueError(f"HTTP error fetching PDF from S3: {str(e)}")
+        except Exception as e:
+            logger.error(f"Unexpected error fetching PDF from S3: {e}")
+            raise ValueError(f"Failed to fetch PDF from S3: {str(e)}")
 
         message_content = [
             FileContent(
@@ -199,20 +213,46 @@ class PaperOperations(BaseLLMClient):
         START_DELIMITER = "---EVIDENCE---"
         END_DELIMITER = "---END-EVIDENCE---"
 
-        signed_url = s3_service.get_cached_presigned_url(
-            db,
-            paper_id=str(paper.id),
-            object_key=str(paper.s3_object_key),
-            current_user=current_user,
-        )
-
-        if not signed_url:
-            raise ValueError(
-                f"Could not generate presigned URL for paper with ID {paper_id}."
+        # 从本地 jobs/uploads 目录读取 PDF 文件
+        if paper.file_url and paper.file_url.startswith("/static/pdf/"):
+            # 本地文件路径
+            pdf_filename = paper.file_url.replace("/static/pdf/", "")
+            pdf_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../jobs/uploads', pdf_filename))
+            
+            if not os.path.exists(pdf_path):
+                raise ValueError(f"PDF file not found at local path: {pdf_path}")
+            
+            with open(pdf_path, 'rb') as f:
+                pdf_bytes = f.read()
+        else:
+            # 回退到 S3 逻辑（如果 file_url 不是本地路径）
+            signed_url = s3_service.get_cached_presigned_url(
+                db,
+                paper_id=str(paper.id),
+                object_key=str(paper.s3_object_key),
+                current_user=current_user,
             )
 
-        # Retrieve and encode the PDF byte
-        pdf_bytes = httpx.get(signed_url).content
+            if not signed_url:
+                raise ValueError(
+                    f"Could not generate presigned URL for paper with ID {paper_id}."
+                )
+
+            # Retrieve and encode the PDF byte
+            try:
+                async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
+                    response = await client.get(signed_url)
+                    response.raise_for_status()
+                    pdf_bytes = response.content
+            except httpx.ConnectError as e:
+                logger.error(f"Connection error fetching PDF from S3: {e}")
+                raise ValueError(f"Failed to connect to S3: {str(e)}")
+            except httpx.HTTPStatusError as e:
+                logger.error(f"HTTP error fetching PDF from S3: {e}")
+                raise ValueError(f"HTTP error fetching PDF from S3: {str(e)}")
+            except Exception as e:
+                logger.error(f"Unexpected error fetching PDF from S3: {e}")
+                raise ValueError(f"Failed to fetch PDF from S3: {str(e)}")
 
         message_content = [
             TextContent(text=formatted_prompt),

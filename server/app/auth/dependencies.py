@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 logger = logging.getLogger(__name__)
 
 # Session cookie name
-SESSION_COOKIE_NAME = "session_token"
+SESSION_COOKIE_NAME = "session"
 
 # Setup header auth
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)

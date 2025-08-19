@@ -72,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const login = async () => {
 		try {
 			setLoading(true);
+			// 改回请求后端 /api/auth/google/login
 			const response = await fetchFromApi('/api/auth/google/login');
 			if (response.auth_url) {
 				// Store the current URL as the return location after login

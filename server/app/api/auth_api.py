@@ -197,11 +197,7 @@ async def google_callback(
         )
 
         # Create redirect response
-        redirect_url = f"{client_domain}/auth/callback?success=true"
-
-        if newly_created:
-            redirect_url += "&welcome=true"
-
+        redirect_url = f"{client_domain}/papers"
         redirect_response = RedirectResponse(
             url=redirect_url, status_code=status.HTTP_302_FOUND
         )

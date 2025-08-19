@@ -20,7 +20,9 @@ from app.helpers.email import (
 from app.helpers.subscription_limits import get_user_usage_info
 from app.schemas.user import CurrentUser
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+import time
 
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 if not STRIPE_API_KEY:
@@ -37,6 +39,27 @@ YOUR_DOMAIN = os.getenv("FRONTEND_URL", "http://localhost:3000")
 stripe.api_key = STRIPE_API_KEY
 
 subscription_router = APIRouter()
+
+# 添加简单的内存缓存来防止过于频繁的请求
+request_cache = {}
+RATE_LIMIT_WINDOW = 5  # 5秒窗口
+MAX_REQUESTS = 10  # 每个窗口最大请求数
+
+def check_rate_limit(user_id: str) -> bool:
+    current_time = time.time()
+    user_requests = request_cache.get(user_id, [])
+    
+    # 清理过期的请求记录
+    user_requests = [t for t in user_requests if current_time - t < RATE_LIMIT_WINDOW]
+    
+    # 检查是否超过限制
+    if len(user_requests) >= MAX_REQUESTS:
+        return False
+    
+    # 添加新请求
+    user_requests.append(current_time)
+    request_cache[user_id] = user_requests
+    return True
 
 
 class SubscriptionInterval(str, Enum):
@@ -738,10 +761,21 @@ async def handle_stripe_webhook(
 
 @subscription_router.get("/usage")
 async def get_user_usage(
-    db: Session = Depends(get_db),
+    request: Request,
     current_user: CurrentUser = Depends(get_required_user),
+    db: Session = Depends(get_db),
 ):
     """Get the current user's subscription usage and limits"""
+    
+    # 检查速率限制
+    if not check_rate_limit(str(current_user.id)):
+        return JSONResponse(
+            status_code=429,
+            content={
+                "message": "Too many requests. Please wait a few seconds and try again."
+            }
+        )
+    
     try:
         usage_info = get_user_usage_info(db, current_user)
         return usage_info

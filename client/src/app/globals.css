@@ -45,72 +45,72 @@
 }
 
 :root {
-	--radius: 0.625rem;
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.129 0.042 264.695);
+	--radius: 0.75rem;
+	--background: oklch(0.98 0.005 240);
+	--foreground: oklch(0.15 0.02 240);
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.129 0.042 264.695);
+	--card-foreground: oklch(0.15 0.02 240);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.129 0.042 264.695);
-	--primary: oklch(0.208 0.042 265.755);
-	--primary-foreground: oklch(0.984 0.003 247.858);
-	--secondary: oklch(0.968 0.007 247.896);
-	--secondary-foreground: oklch(0.208 0.042 265.755);
-	--muted: oklch(0.968 0.007 247.896);
-	--muted-foreground: oklch(0.554 0.046 257.417);
-	--accent: oklch(0.968 0.007 247.896);
-	--accent-foreground: oklch(0.208 0.042 265.755);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.929 0.013 255.508);
-	--input: oklch(0.929 0.013 255.508);
-	--ring: oklch(0.704 0.04 256.788);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.984 0.003 247.858);
-	--sidebar-foreground: oklch(0.129 0.042 264.695);
-	--sidebar-primary: oklch(0.208 0.042 265.755);
-	--sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-	--sidebar-accent: oklch(0.968 0.007 247.896);
-	--sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-	--sidebar-border: oklch(0.929 0.013 255.508);
-	--sidebar-ring: oklch(0.704 0.04 256.788);
+	--popover-foreground: oklch(0.15 0.02 240);
+	--primary: oklch(0.55 0.15 250);
+	--primary-foreground: oklch(0.98 0.005 240);
+	--secondary: oklch(0.96 0.01 240);
+	--secondary-foreground: oklch(0.15 0.02 240);
+	--muted: oklch(0.96 0.01 240);
+	--muted-foreground: oklch(0.45 0.02 240);
+	--accent: oklch(0.96 0.01 240);
+	--accent-foreground: oklch(0.15 0.02 240);
+	--destructive: oklch(0.65 0.25 25);
+	--border: oklch(0.92 0.01 240);
+	--input: oklch(0.92 0.01 240);
+	--ring: oklch(0.55 0.15 250);
+	--chart-1: oklch(0.55 0.15 250);
+	--chart-2: oklch(0.65 0.15 280);
+	--chart-3: oklch(0.75 0.15 310);
+	--chart-4: oklch(0.85 0.15 340);
+	--chart-5: oklch(0.95 0.15 370);
+	--sidebar: oklch(0.98 0.005 240);
+	--sidebar-foreground: oklch(0.15 0.02 240);
+	--sidebar-primary: oklch(0.55 0.15 250);
+	--sidebar-primary-foreground: oklch(0.98 0.005 240);
+	--sidebar-accent: oklch(0.96 0.01 240);
+	--sidebar-accent-foreground: oklch(0.15 0.02 240);
+	--sidebar-border: oklch(0.92 0.01 240);
+	--sidebar-ring: oklch(0.55 0.15 250);
 }
 
 .dark {
-	--background: oklch(0.129 0.042 264.695);
-	--foreground: oklch(0.984 0.003 247.858);
-	--card: oklch(0.208 0.042 265.755);
-	--card-foreground: oklch(0.984 0.003 247.858);
-	--popover: oklch(0.208 0.042 265.755);
-	--popover-foreground: oklch(0.984 0.003 247.858);
-	--primary: oklch(0.929 0.013 255.508);
-	--primary-foreground: oklch(0.208 0.042 265.755);
-	--secondary: oklch(0.279 0.041 260.031);
-	--secondary-foreground: oklch(0.984 0.003 247.858);
-	--muted: oklch(0.279 0.041 260.031);
-	--muted-foreground: oklch(0.704 0.04 256.788);
-	--accent: oklch(0.279 0.041 260.031);
-	--accent-foreground: oklch(0.984 0.003 247.858);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.551 0.027 264.364);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.208 0.042 265.755);
-	--sidebar-foreground: oklch(0.984 0.003 247.858);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-	--sidebar-accent: oklch(0.279 0.041 260.031);
-	--sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.551 0.027 264.364);
+	--background: oklch(0.08 0.02 240);
+	--foreground: oklch(0.95 0.01 240);
+	--card: oklch(0.12 0.02 240);
+	--card-foreground: oklch(0.95 0.01 240);
+	--popover: oklch(0.12 0.02 240);
+	--popover-foreground: oklch(0.95 0.01 240);
+	--primary: oklch(0.65 0.15 250);
+	--primary-foreground: oklch(0.08 0.02 240);
+	--secondary: oklch(0.15 0.02 240);
+	--secondary-foreground: oklch(0.95 0.01 240);
+	--muted: oklch(0.15 0.02 240);
+	--muted-foreground: oklch(0.65 0.02 240);
+	--accent: oklch(0.15 0.02 240);
+	--accent-foreground: oklch(0.95 0.01 240);
+	--destructive: oklch(0.75 0.25 25);
+	--border: oklch(0.2 0.02 240);
+	--input: oklch(0.2 0.02 240);
+	--ring: oklch(0.65 0.15 250);
+	--chart-1: oklch(0.65 0.15 250);
+	--chart-2: oklch(0.75 0.15 280);
+	--chart-3: oklch(0.85 0.15 310);
+	--chart-4: oklch(0.95 0.15 340);
+	--chart-5: oklch(0.65 0.15 370);
+	--sidebar: oklch(0.12 0.02 240);
+	--sidebar-foreground: oklch(0.95 0.01 240);
+	--sidebar-primary: oklch(0.65 0.15 250);
+	--sidebar-primary-foreground: oklch(0.08 0.02 240);
+	--sidebar-accent: oklch(0.15 0.02 240);
+	--sidebar-accent-foreground: oklch(0.95 0.01 240);
+	--sidebar-border: oklch(0.2 0.02 240);
+	--sidebar-ring: oklch(0.65 0.15 250);
 }
 
 @layer base {
@@ -120,18 +120,50 @@
 
 	body {
 		@apply bg-background text-foreground;
+		background: linear-gradient(135deg, var(--background) 0%, oklch(0.96 0.01 240) 100%);
+		min-height: 100vh;
+	}
+
+	/* 自定义滚动条 */
+	::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: oklch(0.96 0.01 240);
+		border-radius: 4px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: oklch(0.8 0.02 240);
+		border-radius: 4px;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: oklch(0.7 0.02 240);
+	}
+
+	/* 暗色模式滚动条 */
+	.dark ::-webkit-scrollbar-track {
+		background: oklch(0.15 0.02 240);
+	}
+
+	.dark ::-webkit-scrollbar-thumb {
+		background: oklch(0.3 0.02 240);
+	}
+
+	.dark ::-webkit-scrollbar-thumb:hover {
+		background: oklch(0.4 0.02 240);
 	}
 }
 
 @keyframes glow-limited {
-
-	0%,
-	100% {
-		box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+	0%, 100% {
+		box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
 	}
-
 	50% {
-		box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+		box-shadow: 0 0 25px rgba(99, 102, 241, 0.6), 0 0 35px rgba(99, 102, 241, 0.4);
 	}
 }
 
@@ -142,13 +174,94 @@
 @keyframes fadeIn {
 	from {
 		opacity: 0;
+		transform: translateY(10px);
 	}
-
 	to {
 		opacity: 1;
+		transform: translateY(0);
 	}
 }
 
 .animate-fade-in {
-	animation: fadeIn 0.5s ease-in-out;
+	animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.animate-slide-in {
+	animation: slideIn 0.4s ease-out;
+}
+
+@keyframes pulse-glow {
+	0%, 100% {
+		box-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
+	}
+	50% {
+		box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+	}
+}
+
+.animate-pulse-glow {
+	animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* 现代化卡片样式 */
+.modern-card {
+	@apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+}
+
+.modern-card:hover {
+	@apply transform -translate-y-1;
+}
+
+/* 渐变按钮样式 */
+.gradient-button {
+	@apply bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-medium px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5;
+}
+
+/* 现代化输入框 */
+.modern-input {
+	@apply bg-background/50 backdrop-blur-sm border border-border/50 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+}
+
+/* 玻璃态效果 */
+.glass-effect {
+	@apply bg-white/10 backdrop-blur-md border border-white/20 rounded-xl;
+}
+
+.dark .glass-effect {
+	@apply bg-black/10 border-white/10;
+}
+
+/* 现代化侧边栏 */
+.modern-sidebar {
+	@apply bg-sidebar/95 backdrop-blur-md border-r border-sidebar-border/50;
+}
+
+/* 现代化头部 */
+.modern-header {
+	@apply bg-background/80 backdrop-blur-md border-b border-border/50;
+}
+
+/* 渐变文本 */
+.gradient-text {
+	@apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
+}
+
+/* 现代化阴影 */
+.modern-shadow {
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .modern-shadow {
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
 }

@@ -3,39 +3,35 @@ S3 service for file uploads and management.
 """
 import logging
 import os
-import uuid
+import boto3
+from botocore.exceptions import ClientError
 from typing import Tuple
-from urllib.parse import urlparse
-
-import boto3 # type: ignore
-from botocore.exceptions import ClientError # type: ignore
 
 logger = logging.getLogger(__name__)
 
-# Load AWS configuration from environment variables
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
-CLOUDFLARE_BUCKET_NAME = os.environ.get("CLOUDFLARE_BUCKET_NAME")
-UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "uploads")
-
-
 class S3Service:
-    """Service for handling S3 operations"""
+    """Service for handling S3 file operations"""
 
     def __init__(self):
-        """Initialize S3 client"""
+        """Initialize S3 service"""
         self.s3_client = boto3.client(
-            "s3",
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            region_name=AWS_REGION,
+            's3',
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name=os.getenv("AWS_REGION", "us-east-2")
         )
-        self.bucket_name = S3_BUCKET_NAME
-        self.cloudflare_bucket_name = CLOUDFLARE_BUCKET_NAME
+        self.bucket = os.getenv("S3_BUCKET_NAME")  # 修改这里以匹配环境变量
+        self.prefix = os.getenv("AWS_S3_PREFIX", "papers/")
+        
+        # Test S3 connection
+        try:
+            self.s3_client.head_bucket(Bucket=self.bucket)
+            logger.info("Successfully connected to S3 bucket: %s", self.bucket)
+        except ClientError as e:
+            logger.error("Failed to connect to S3: %s", e)
+            raise
 
-    def upload_any_file_from_bytes(
+    async def upload_any_file_from_bytes(
         self,
         file_bytes: bytes,
         original_filename: str,
@@ -49,19 +45,31 @@ class S3Service:
             content_type (str): The MIME type of the file
 
         Returns:
-            tuple[str, str]: The S3 object key and public URL
+            tuple[str, str]: The file ID and S3 URL
         """
-        object_key = f"{UPLOAD_DIR}/{uuid.uuid4()}-{original_filename}"
-        self.s3_client.put_object(
-            Bucket=self.bucket_name,
-            Key=object_key,
-            Body=file_bytes,
-            ContentType=content_type,
-        )
-        file_url = f"https://{self.cloudflare_bucket_name}/{object_key}"
-        return object_key, file_url
+        try:
+            # Generate S3 key
+            file_key = f"{self.prefix}{original_filename}"
+            
+            # Upload to S3
+            self.s3_client.put_object(
+                Bucket=self.bucket,
+                Key=file_key,
+                Body=file_bytes,
+                ContentType=content_type
+            )
+            
+            # 返回直接的 S3 URL
+            file_url = f"https://{self.bucket}.s3.{os.getenv('AWS_REGION', 'us-east-2')}.amazonaws.com/{file_key}"
+            
+            logger.info(f"Uploaded file to S3: {file_key}")
+            return file_key, file_url
+            
+        except Exception as e:
+            logger.error(f"Error uploading file to S3: {e}")
+            raise
 
-    def upload_any_file(
+    async def upload_any_file(
         self, file_path: str, original_filename: str, content_type: str
     ) -> tuple[str, str]:
         """
@@ -71,54 +79,41 @@ class S3Service:
             original_filename: The original name of the file
             content_type: The MIME type of the file
         Returns:
-            tuple: S3 object key and public URL
+            tuple: File key and S3 URL
         """
-
         try:
-            # Generate a unique key for the S3 object
-            # Use a UUID prefix to avoid naming conflicts
-            object_key = f"{UPLOAD_DIR}/{uuid.uuid4()}-{original_filename}"
-
-            logger.info(f"Uploading file {original_filename} to S3 with key {object_key}")
-            logger.info(f"bucket_name: {self.bucket_name}, cloudflare_bucket_name: {self.cloudflare_bucket_name}")
-
-            # Upload to S3
+            logger.info(f"Uploading file {original_filename} to S3")
+            
+            # Read file bytes
             with open(file_path, "rb") as file_obj:
-                self.s3_client.put_object(
-                    Bucket=self.bucket_name,
-                    Key=object_key,
-                    Body=file_obj,
-                    ContentType=content_type,
-                )
-
-            # Generate the URL for the uploaded file
-            file_url = f"https://{self.cloudflare_bucket_name}/{object_key}"
-
-            return object_key, file_url
-        except ClientError as e:
+                file_bytes = file_obj.read()
+            
+            return await self.upload_any_file_from_bytes(file_bytes, original_filename, content_type)
+            
+        except Exception as e:
             logger.error(f"Error uploading file to S3: {e}")
             raise
-        except FileNotFoundError as e:
-            logger.error(f"File not found: {file_path}")
-            raise ValueError(f"File not found: {file_path}")
 
-    def delete_file(self, object_key: str) -> bool:
+    async def delete_file(self, file_key: str) -> bool:
         """
         Delete a file from S3
 
         Args:
-            object_key: The S3 object key to delete
+            file_key: The S3 key to delete
 
         Returns:
             bool: True if deleted successfully, False otherwise
         """
         try:
-            self.s3_client.delete_object(Bucket=self.bucket_name, Key=object_key)
+            self.s3_client.delete_object(
+                Bucket=self.bucket,
+                Key=file_key
+            )
+            logger.info(f"Deleted file from S3: {file_key}")
             return True
-        except ClientError as e:
+        except Exception as e:
             logger.error(f"Error deleting file from S3: {e}")
             return False
-
 
 # Create a single instance to use throughout the application
 s3_service = S3Service()

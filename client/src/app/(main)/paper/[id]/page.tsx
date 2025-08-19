@@ -70,6 +70,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CommandShortcut, localizeCommandToOS } from '@/components/ui/command';
 import PaperMetadata from '@/components/PaperMetadata';
+import CommentStyleChat from '@/components/CommentStyleChat';
 
 import {
     ChatMessage,
@@ -80,6 +81,15 @@ import {
     ResponseStyle,
 } from '@/lib/schema';
 
+// 添加评论线程接口定义
+interface CommentThread {
+    id: string;
+    highlightId?: string;
+    selectedText: string;
+    messages: ChatMessage[];
+    isExpanded: boolean;
+}
+
 import { Input } from '@/components/ui/input';
 import { AudioOverview } from '@/components/AudioOverview';
 import { PaperStatus, PaperStatusEnum } from '@/components/utils/PdfStatus';
@@ -89,6 +99,7 @@ import { Avatar } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import PaperImageView from '@/components/PaperImageView';
+import { PdfOverviewChat } from '@/components/PdfOverviewChat';
 
 interface ChatRequestBody {
     user_query: string;
@@ -122,6 +133,8 @@ const chatLoadingMessages = [
     "Crafting insights...",
     "Synthesizing findings...",
 ]
+
+let pendingBubbleThread: { text: string } | null = null;
 
 export default function PaperView() {
     const params = useParams();
@@ -201,11 +214,19 @@ export default function PaperView() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(60); // percentage
     const [isDragging, setIsDragging] = useState(false);
 
+    // 评论线程状态管理
+    const [commentThreads, setCommentThreads] = useState<CommentThread[]>([]);
+    const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+    
+    // 待处理的聊天线程
+    const [pendingBubbleThread, setPendingBubbleThread] = useState<{ text: string } | null>(null);
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
     // Reference to track the save timeout
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const inputMessageRef = useRef<HTMLTextAreaElement>(null);
     const chatInputFormRef = useRef<HTMLFormElement>(null);
+    const commentChatRef = useRef<any>(null);
 
     const END_DELIMITER = "END_OF_STREAM";
 
@@ -409,6 +430,48 @@ export default function PaperView() {
         }
     }, [isStreaming]);
 
+    // 监听气泡点击事件，自动切换到 Chat 面板
+    useEffect(() => {
+        const handleSwitchToChat = () => {
+            setRightSideFunction('Chat');
+        };
+
+        window.addEventListener('switchToChat', handleSwitchToChat);
+        return () => window.removeEventListener('switchToChat', handleSwitchToChat);
+    }, []);
+
+    // 在 PaperView 组件内添加事件监听
+    useEffect(() => {
+        const handleSwitchToChat = (event: CustomEvent) => {
+            const { threadId } = event.detail;
+            console.log('Switching to chat thread:', threadId);
+            
+            // 切换到 Overview 标签
+            setRightSideFunction('Overview');
+            
+            // 设置活跃的评论线程
+            setActiveThreadId(threadId);
+            
+            // 滚动到对应的评论
+            setTimeout(() => {
+                const threadElement = document.querySelector(`[data-thread-id="${threadId}"]`);
+                if (threadElement) {
+                    threadElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // 添加一个短暂的高亮效果
+                    threadElement.classList.add('ring-2', 'ring-blue-400', 'transition-all', 'duration-300');
+                    setTimeout(() => {
+                        threadElement.classList.remove('ring-2', 'ring-blue-400');
+                    }, 2000);
+                }
+            }, 100);
+        };
+
+        window.addEventListener('switchToChat', handleSwitchToChat as EventListener);
+        return () => {
+            window.removeEventListener('switchToChat', handleSwitchToChat as EventListener);
+        };
+    }, [setRightSideFunction, setActiveThreadId]);
+
     const scrollToLatestMessage = () => {
         // TODO: Should this be scroll to second to last message / user message instead of latest message? Used for loading from history and loading new message.
         if (messagesContainerRef.current && messages.length > 0) {
@@ -440,7 +503,17 @@ export default function PaperView() {
         async function fetchPaper() {
             try {
                 const response: PaperData = await fetchFromApi(`/api/paper?id=${id}`);
-                setPaperData(response);
+                // 修正 file_url，确保为 /static/pdf/xxx.pdf 形式
+                let fileUrl = response.file_url;
+                if (fileUrl && !fileUrl.startsWith('/static/pdf/')) {
+                    // 假设 fileUrl 是 uuid 或文件名，拼接成正确路径
+                    if (/^[\w-]+\.pdf$/.test(fileUrl)) {
+                        fileUrl = `/static/pdf/${fileUrl}`;
+                    } else if (/^[\w-]{36}$/.test(fileUrl)) {
+                        fileUrl = `/static/pdf/${fileUrl}.pdf`;
+                    }
+                }
+                setPaperData({ ...response, file_url: fileUrl });
             } catch (error) {
                 console.error('Error fetching paper:', error);
             } finally {
@@ -730,15 +803,24 @@ export default function PaperView() {
         }
     }, []);
 
-    const handleSubmit = useCallback(async (e: FormEvent | null = null) => {
+    const handleSubmit = useCallback(async (e: FormEvent | null = null, selectedText?: string) => {
         if (e) {
             e.preventDefault();
         }
 
         if (!currentMessage.trim() || isStreaming) return;
 
+        // 如果有选中的文本，添加到 userMessageReferences
+        const finalReferences = selectedText 
+            ? [...userMessageReferences, selectedText]
+            : userMessageReferences;
+
         // Add user message to chat
-        const userMessage: ChatMessage = { role: 'user', content: currentMessage, references: transformReferencesToFormat(userMessageReferences) };
+        const userMessage: ChatMessage = { 
+            role: 'user', 
+            content: currentMessage, 
+            references: transformReferencesToFormat(finalReferences) 
+        };
         setMessages(prev => [...prev, userMessage]);
 
         // Clear input field
@@ -755,9 +837,9 @@ export default function PaperView() {
 
         const requestBody: ChatRequestBody = {
             user_query: userMessage.content,
-            conversation_id: conversationId,
+            conversation_id: conversationId || "", // 保证为字符串，不能为 null
             paper_id: id,
-            user_references: userMessageReferences,
+            user_references: finalReferences,
         };
 
         if (selectedModel) {
@@ -811,47 +893,28 @@ export default function PaperView() {
                 // Keep the last part (potentially incomplete) in the buffer
                 buffer = parts.pop() || '';
 
-                // Process all complete parts
-                for (const event of parts) {
-                    if (!event.trim()) continue;
+                // Process complete events
+                for (const part of parts) {
+                    if (!part.trim()) continue;
 
                     try {
-                        // Parse the JSON chunk
-                        const parsedChunk = JSON.parse(event.trim());
-                        const chunkType = parsedChunk.type;
-                        const chunkContent = parsedChunk.content;
+                        const event = JSON.parse(part);
+                        console.log('Parsed event:', event);
 
-                        if (chunkType === 'content') {
+                        if (event.type === 'content') {
                             contentChunks++;
-                            console.log(`Processing content chunk #${contentChunks}:`, chunkContent);
-
-                            // Add this content to our accumulated content
-                            accumulatedContent += chunkContent;
-
-                            // Update the message with the new content
-                            setStreamingChunks(prev => {
-                                const newChunks = [...prev, chunkContent];
-                                // Update previous content for animation tracking
-                                return newChunks;
-                            });
-                        }
-                        else if (chunkType === 'references') {
+                            accumulatedContent += event.content;
+                            setStreamingChunks(prev => [...prev, event.content]);
+                        } else if (event.type === 'references') {
                             referenceChunks++;
-                            console.log(`Processing references chunk #${referenceChunks}:`, chunkContent);
-
-                            // Store the references
-                            references = chunkContent;
-
-                            // Update the message with the references
-                            setStreamingReferences(chunkContent);
+                            references = event.content;
+                            setStreamingReferences(event.content);
+                        } else if (event.type === 'error') {
+                            console.error('Stream error:', event.content);
+                            throw new Error(event.content);
                         }
-                        else {
-                            console.warn(`Unknown chunk type: ${chunkType}`);
-                        }
-                    } catch (error) {
-                        console.error('Error processing event:', error, 'Raw event:', event);
-                        // Continue processing other events rather than breaking
-                        continue;
+                    } catch (parseError) {
+                        console.error('Error parsing event:', parseError, 'Raw part:', part);
                     }
                 }
             }
@@ -992,7 +1055,22 @@ export default function PaperView() {
                     msg.role === 'user' && user && (
                         <Avatar className="h-6 w-6">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            {user.picture ? (<img src={user.picture} alt={user.name} />) : (<User size={16} />)}
+                            {user.picture ? (
+                                <img 
+                                    src={user.picture} 
+                                    alt={user.name}
+                                    onError={(e) => {
+                                        // 如果头像加载失败，隐藏图片，显示默认图标
+                                        e.currentTarget.style.display = 'none';
+                                        const avatar = e.currentTarget.closest('.h-6');
+                                        const userIcon = avatar?.querySelector('.user-icon-paper');
+                                        if (userIcon) {
+                                            userIcon.classList.remove('hidden');
+                                        }
+                                    }}
+                                />
+                            ) : null}
+                            <User size={16} className={`user-icon-paper ${user.picture ? 'hidden' : ''}`} />
                         </Avatar>
                     )
                 }
@@ -1175,6 +1253,89 @@ export default function PaperView() {
         updateCreditUsage();
     }, [updateCreditUsage]);
 
+    // 新增：用于ref操作
+    // const commentChatRef = useRef<any>(null); // This line is removed as it's now defined above
+
+    // 全局监听 addBubbleCommentThread 事件，无论右侧在哪个页面都能 add to chat
+    useEffect(() => {
+        let isProcessing = false;
+        
+        const handler = (e: any) => {
+            if (e.detail?.text && !isProcessing) {
+                isProcessing = true;
+                console.log('Received addBubbleCommentThread event:', e.detail.text);
+                // 只设置 pendingBubbleThread，不直接创建线程
+                setPendingBubbleThread({ text: e.detail.text });
+                
+                // 只有当需要时才切换到 Chat 页面
+                if (e.detail.shouldSwitchToChat && rightSideFunction !== 'Chat') {
+                    setRightSideFunction('Chat');
+                }
+                
+                // 重置处理状态
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 1000);
+            }
+        };
+        window.addEventListener('addBubbleCommentThread', handler);
+        return () => window.removeEventListener('addBubbleCommentThread', handler);
+    }, []); // 只依赖挂载
+
+    // 新增：Chat面板挂载后自动处理pendingBubbleThread
+    useEffect(() => {
+        if (rightSideFunction === 'Chat' && commentChatRef.current && pendingBubbleThread) {
+            console.log('Processing pendingBubbleThread', pendingBubbleThread);
+            // 使用 setTimeout 确保在下一个事件循环中处理，避免重复触发
+            setTimeout(() => {
+                if (commentChatRef.current && pendingBubbleThread) {
+                    commentChatRef.current.createThreadAndSend?.(pendingBubbleThread.text, '');
+                    setPendingBubbleThread(null);
+                }
+            }, 0);
+        }
+    }, [rightSideFunction, pendingBubbleThread]);
+
+    // 只在页面首次加载时恢复评论线程
+    useEffect(() => {
+        if (id) {
+            try {
+                const savedThreads = localStorage.getItem(`comment-threads-${id}`);
+                if (savedThreads) {
+                    setCommentThreads(JSON.parse(savedThreads));
+                }
+            } catch (error) {
+                console.error('Error loading comment threads from localStorage:', error);
+            }
+        }
+        // 只在首次挂载时执行
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // 保存评论线程到 localStorage
+    useEffect(() => {
+        if (id && commentThreads.length > 0) {
+            try {
+                localStorage.setItem(`comment-threads-${id}`, JSON.stringify(commentThreads));
+            } catch (error) {
+                console.error('Error saving comment threads to localStorage:', error);
+            }
+        }
+    }, [commentThreads, id]);
+
+    // 在PaperView组件内
+    const pdfViewerRef = useRef<any>(null);
+
+    // 监听jumpToHighlight事件
+    useEffect(() => {
+      const handler = (e: any) => {
+        if (pdfViewerRef.current && typeof pdfViewerRef.current.scrollToHighlight === 'function') {
+          pdfViewerRef.current.scrollToHighlight(e.detail.key);
+        }
+      };
+      window.addEventListener('jumpToHighlight', handler);
+      return () => window.removeEventListener('jumpToHighlight', handler);
+    }, []);
 
 
     if (loading) return <div>Loading paper data...</div>;
@@ -1193,9 +1354,12 @@ export default function PaperView() {
                 >
                     {paperData.file_url && (
                         <div className="w-full h-full">
+                            {console.log('PDF file_url:', paperData.file_url)}
                             <PdfViewer
+                                ref={pdfViewerRef}
                                 pdfUrl={paperData.file_url}
                                 explicitSearchTerm={explicitSearchTerm}
+                                setExplicitSearchTerm={setExplicitSearchTerm}
                                 setUserMessageReferences={setUserMessageReferences}
                                 setSelectedText={setSelectedText}
                                 setTooltipPosition={setTooltipPosition}
@@ -1217,6 +1381,10 @@ export default function PaperView() {
                                 setAddedContentForPaperNote={setAddedContentForPaperNote}
                                 handleStatusChange={handleStatusChange}
                                 paperStatus={paperData.status}
+                                // 新增评论气泡相关 props
+                                commentThreads={commentThreads}
+                                activeThreadId={activeThreadId}
+                                setActiveThreadId={setActiveThreadId}
                             />
                         </div>
                     )}
@@ -1426,18 +1594,9 @@ export default function PaperView() {
                                                             </ul>
                                                         </div>
                                                     )}
-                                                <div className="sticky bottom-4 right-4 flex justify-end">
-                                                    <Button
-                                                        variant="default"
-                                                        className="w-fit bg-blue-500 hover:bg-blue-400 dark:hover:bg-blue-600 cursor-pointer z-10 shadow-md"
-                                                        onClick={() => {
-                                                            setRightSideFunction('Chat');
-                                                        }}
-                                                    >
-                                                        <Sparkle className="mr-1" />
-                                                        Ask a Question
-                                                    </Button>
-                                                </div>
+                                            </div>
+                                            <div className="mt-4">
+                                                <PdfOverviewChat paperId={id} />
                                             </div>
                                         </div>
                                     )
@@ -1454,292 +1613,34 @@ export default function PaperView() {
                                 }
                                 {
                                     rightSideFunction === 'Chat' && (
-                                        <div className="flex flex-col h-[calc(100vh-64px)] px-2 overflow-y-auto">
-                                            {/* Paper Metadata Section */}
-                                            {paperData && (
-                                                <PaperMetadata
-                                                    paperData={paperData}
-                                                    hasMessages={messages.length > 0}
-                                                    onClickStarterQuestion={(question) => {
-                                                        setCurrentMessage(question);
-                                                        inputMessageRef.current?.focus();
-                                                        chatInputFormRef.current?.scrollIntoView({
-                                                            behavior: 'smooth',
-                                                            block: 'nearest',
-                                                            inline: 'nearest',
-                                                        });
-                                                        setPendingStarterQuestion(question);
-                                                    }}
-                                                />
-                                            )}
-
-                                            <div
-                                                className={`flex-1 overflow-y-auto space-y-2 transition-all duration-300 ease-in-out ${isStreaming ? 'pb-24' : ''}`}
-                                                ref={messagesContainerRef}
-                                                onScroll={handleScroll}
-                                            >
-                                                {hasMoreMessages && messages.length > 0 && (
-                                                    <div className="text-center py-2">
-                                                        {isLoadingMoreMessages ? (
-                                                            <div className="text-sm text-gray-500">Loading messages...</div>
-                                                        ) : (
-                                                            <button
-                                                                className="text-sm text-blue-500 hover:text-blue-700"
-                                                                onClick={fetchMoreMessages}
-                                                            >
-                                                                Load earlier messages
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                {messages.length === 0 ? (
-                                                    <div className="text-center text-gray-500 my-4">
-                                                        What do you want to understand about this paper?
-                                                        <div className='grid grid-cols-1 gap-2 mt-2'>
-                                                            {paperData.starter_questions && paperData.starter_questions.length > 0 ? (
-                                                                paperData.starter_questions.slice(0, 5).map((question, i) => (
-                                                                    <Button
-                                                                        key={i}
-                                                                        variant="outline"
-                                                                        className="text-sm font-medium p-2 max-w-full whitespace-normal h-auto text-left justify-start break-words bg-background text-secondary-foreground hover:bg-secondary/50 border-1 hover:translate-y-0.5 transition-transform duration-200"
-                                                                        onClick={() => {
-                                                                            setCurrentMessage(question);
-                                                                            inputMessageRef.current?.focus();
-                                                                            chatInputFormRef.current?.scrollIntoView({
-                                                                                behavior: 'smooth',
-                                                                                block: 'nearest',
-                                                                                inline: 'nearest',
-                                                                            });
-                                                                            setPendingStarterQuestion(question);
-                                                                        }}
-                                                                    >
-                                                                        {question}
-                                                                    </Button>
-                                                                ))
-                                                            ) : null}
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    memoizedMessages
-                                                )}
-                                                {
-                                                    isStreaming && streamingChunks.length > 0 && (
-                                                        <div className="prose dark:prose-invert p-2 !max-w-full rounded-lg w-full text-primary dark:text-primary-foreground">
-                                                            <AnimatedMarkdown
-                                                                content={streamingChunks.join('')}
-                                                                remarkPlugins={[[remarkMath, { singleDollarTextMath: false }], remarkGfm]}
-                                                                rehypePlugins={[rehypeKatex]}
-                                                                components={{
-                                                                    // Apply the custom component to text nodes
-                                                                    p: (props) => <CustomCitationLink
-                                                                        {...props}
-                                                                        handleCitationClick={handleCitationClick}
-                                                                        messageIndex={messages.length} // Use the next message index
-                                                                        citations={streamingReferences?.citations || []}
-                                                                    />,
-                                                                    li: (props) => <CustomCitationLink
-                                                                        {...props}
-                                                                        handleCitationClick={handleCitationClick}
-                                                                        messageIndex={messages.length} // Use the next message index
-                                                                        citations={streamingReferences?.citations || []}
-                                                                    />,
-                                                                    div: (props) => <CustomCitationLink
-                                                                        {...props}
-                                                                        handleCitationClick={handleCitationClick}
-                                                                        messageIndex={messages.length} // Use the next message index
-                                                                        citations={streamingReferences?.citations || []}
-                                                                    />,
-                                                                    td: (props) => <CustomCitationLink
-                                                                        {...props}
-                                                                        handleCitationClick={handleCitationClickFromSummary}
-                                                                        messageIndex={0}
-                                                                        citations={streamingReferences?.citations || []}
-                                                                    />,
-                                                                    table: (props) => (
-                                                                        <div className="w-full overflow-x-auto">
-                                                                            <table {...props} className="min-w-full border-collapse" />
-                                                                        </div>
-                                                                    ),
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    )
+                                        <CommentStyleChat
+                                            ref={commentChatRef}
+                                            messages={messages}
+                                            isStreaming={isStreaming}
+                                            onSendMessage={(message, selectedText) => {
+                                                // 如果有选中的文本，添加到 userMessageReferences
+                                                if (selectedText) {
+                                                    setUserMessageReferences([selectedText]);
                                                 }
-                                                {
-                                                    isStreaming && (
-                                                        <div className="flex items-center gap-3 p-2">
-                                                            <Loader className="animate-spin w-6 h-6 text-blue-500 flex-shrink-0" />
-                                                            <div className="text-sm text-secondary-foreground">
-                                                                {displayedText}
-                                                                {isTyping && (
-                                                                    <span className="animate-pulse">|</span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                }
-                                                <div ref={messagesEndRef} />
-                                            </div>
-                                            <form onSubmit={handleSubmit} className="flex flex-col gap-2" ref={chatInputFormRef}>
-                                                {
-                                                    userMessageReferences.length > 0 && (
-                                                        <div className='flex flex-row gap-2'>
-                                                            {userMessageReferences.map((ref, index) => (
-                                                                <div key={index} className="text-xs text-secondary-foreground flex bg-secondary p-2 rounded-lg">
-                                                                    <p
-                                                                        className='
-                                                        overflow-hidden
-                                                        text-ellipsis
-                                                        whitespace-normal
-                                                        max-w-[200px]
-                                                        text-secondary-foreground
-                                                        line-clamp-2
-                                                        '
-                                                                        onClick={() =>
-                                                                            setExplicitSearchTerm(ref)
-                                                                        }
-                                                                    >
-                                                                        {ref}
-                                                                    </p>
-                                                                    <Button
-                                                                        variant='ghost'
-                                                                        className='h-auto w-fit p-0 !px-0'
-                                                                        onClick={() =>
-                                                                            setUserMessageReferences(prev => prev.filter((_, i) => i !== index))
-                                                                        }
-                                                                    >
-                                                                        <X size={2} />
-                                                                    </Button>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )
-                                                }
-                                                <div
-                                                    className='rounded-md p-0.5 flex flex-col gap-2 bg-secondary'
-                                                >
-                                                    {/* User message input area */}
-                                                    <Textarea
-                                                        value={currentMessage}
-                                                        onChange={handleTextareaChange}
-                                                        ref={inputMessageRef}
-                                                        placeholder="Ask something about this paper."
-                                                        className="border-none bg-secondary dark:bg-secondary rounded-md resize-none hover:resize-y p-2 focus-visible:outline-none focus-visible:ring-0 shadow-none min-h-[2rem] max-h-32"
-                                                        disabled={isStreaming || (creditUsage?.usagePercentage ?? 0) >= 100}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                                e.preventDefault();
-                                                                handleSubmit(e);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <div className="flex flex-row justify-between gap-2">
-                                                        <div className="flex flex-row gap-2">
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        className="w-fit text-sm"
-                                                                        title='Settings - Configure model and response style'
-                                                                        disabled={isStreaming}
-                                                                    >
-                                                                        <Route
-                                                                            className="h-4 w-4 text-secondary-foreground"
-                                                                        />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent className="w-56">
-                                                                    <DropdownMenuSub>
-                                                                        <DropdownMenuSubTrigger className="flex items-center">
-                                                                            <Sparkle className="mr-2 h-4 w-4" />
-                                                                            <span>Model {selectedModel ? `(${availableModels[selectedModel]})` : ''}</span>
-                                                                        </DropdownMenuSubTrigger>
-                                                                        <DropdownMenuSubContent>
-                                                                            {Object.entries(availableModels).map(([key, value]) => (
-                                                                                <DropdownMenuItem
-                                                                                    key={key}
-                                                                                    onClick={() => setSelectedModel(key)}
-                                                                                    className="flex items-center justify-between"
-                                                                                >
-                                                                                    <span>{value}</span>
-                                                                                    {selectedModel === key && (
-                                                                                        <Check className="h-4 w-4 text-green-500" />
-                                                                                    )}
-                                                                                </DropdownMenuItem>
-                                                                            ))}
-                                                                        </DropdownMenuSubContent>
-                                                                    </DropdownMenuSub>
-
-                                                                    <DropdownMenuSub>
-                                                                        <DropdownMenuSubTrigger className="flex items-center">
-                                                                            <Feather className="mr-2 h-4 w-4" />
-                                                                            <span>Response Style {responseStyle ? `(${responseStyle})` : ''}</span>
-                                                                        </DropdownMenuSubTrigger>
-                                                                        <DropdownMenuSubContent>
-                                                                            {Object.values(ResponseStyle).map((style) => (
-                                                                                <DropdownMenuItem
-                                                                                    key={style}
-                                                                                    onClick={() => {
-                                                                                        setResponseStyle(style);
-                                                                                        setRightSideFunction('Chat');
-                                                                                    }}
-                                                                                    className="flex items-center justify-between"
-                                                                                >
-                                                                                    <span>{style}</span>
-                                                                                    {style === responseStyle && (
-                                                                                        <Check className="h-4 w-4 text-green-500" />
-                                                                                    )}
-                                                                                </DropdownMenuItem>
-                                                                            ))}
-                                                                        </DropdownMenuSubContent>
-                                                                    </DropdownMenuSub>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </div>
-                                                        <Button
-                                                            type="submit"
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === 'Enter' && !e.shiftKey) {
-                                                                    e.preventDefault();
-                                                                    handleSubmit(e);
-                                                                }
-                                                            }}
-                                                            variant="default"
-                                                            className="w-fit rounded-full h-fit !px-2 py-2 bg-blue-500 hover:bg-blue-400"
-                                                            disabled={isStreaming}
-                                                        >
-                                                            <ArrowUp
-                                                                className="h-4 w-4 rounded-full"
-                                                                aria-hidden="true"
-                                                            />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                                {/* Chat Credit Usage Display */}
-                                                {creditUsage && creditUsage.showWarning && (
-                                                    <div className={`text-xs px-2 py-1 ${creditUsage.isCritical ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'} justify-between flex`}>
-                                                        <div className="font-semibold">{creditUsage.used} credits used</div>
-                                                        <div className="font-semibold">
-                                                            <HoverCard>
-                                                                <HoverCardTrigger asChild>
-                                                                    <span>{creditUsage.remaining} credits remaining</span>
-                                                                </HoverCardTrigger>
-                                                                <HoverCardContent side="top" className="w-48">
-                                                                    <p className="text-sm">Resets on {nextMonday.toLocaleDateString()}</p>
-                                                                </HoverCardContent>
-                                                            </HoverCard>
-                                                            <Link
-                                                                href="/pricing"
-                                                                className="text-blue-500 hover:text-blue-700 ml-1"
-                                                            >
-                                                                Upgrade
-                                                            </Link>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </form>
-                                        </div>
+                                                setCurrentMessage(message);
+                                                // 触发提交
+                                                setTimeout(() => handleSubmit(null, selectedText), 0);
+                                            }}
+                                            selectedText={selectedText}
+                                            onClearSelectedText={() => setSelectedText("")}
+                                            // 新增评论线程相关 props
+                                            commentThreads={commentThreads}
+                                            setCommentThreads={setCommentThreads}
+                                            activeThreadId={activeThreadId}
+                                            setActiveThreadId={setActiveThreadId}
+                                            // 新增高亮相关 prop
+                                            activeHighlight={activeHighlight}
+                                            // 新增对话相关 props
+                                            paperId={id}
+                                            conversationId={conversationId}
+                                            // 新增llmProvider
+                                            llmProvider={selectedModel}
+                                        />
                                     )
                                 }
                             </div>

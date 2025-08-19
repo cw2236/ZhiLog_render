@@ -1,4 +1,5 @@
 import logging
+import os
 from enum import Enum
 from typing import Any, Dict, Iterator, List, Optional
 
@@ -25,7 +26,18 @@ class ModelType(Enum):
 class BaseLLMClient:
     """Unified LLM client that supports multiple providers"""
 
-    def __init__(self, default_provider: LLMProvider = LLMProvider.GEMINI):
+    def __init__(self, default_provider: Optional[LLMProvider] = None):
+        # 从环境变量读取默认 provider，如果没有设置则默认使用 GEMINI
+        if default_provider is None:
+            env_provider = os.getenv("LLM_PROVIDER", "gemini").lower()
+            if env_provider == "openai":
+                default_provider = LLMProvider.OPENAI
+            elif env_provider == "gemini":
+                default_provider = LLMProvider.GEMINI
+            else:
+                logger.warning(f"Unknown LLM_PROVIDER: {env_provider}, defaulting to GEMINI")
+                default_provider = LLMProvider.GEMINI
+        
         self.default_provider = default_provider
         self._providers: Dict[LLMProvider, BaseLLMProvider] = {}
 

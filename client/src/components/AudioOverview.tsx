@@ -557,7 +557,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                     <FileAudio className="w-5 h-5" />
-                    Audio Overview
+                    音频概览
                 </h3>
 
                 {/* Previous Audio Overviews Dropdown */}
@@ -566,12 +566,12 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" className="flex items-center gap-2">
                                 <History className="w-4 h-4" />
-                                Previous ({allAudioOverviews.length - 1})
+                                之前的音频概览 ({allAudioOverviews.length - 1})
                                 <ChevronDown className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-80">
-                            <DropdownMenuLabel>Select an audio overview to play</DropdownMenuLabel>
+                            <DropdownMenuLabel>选择一个音频概览来播放</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {allAudioOverviews
                                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -584,7 +584,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                         <div className="flex items-center justify-between w-full">
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-sm font-medium truncate">
-                                                    {overview.title || 'Audio Overview'}
+                                                    {overview.title || '音频概览'}
                                                 </div>
                                                 <div className="text-xs text-muted-foreground mt-1">
                                                     {new Date(overview.created_at).toLocaleDateString('en-US', {
@@ -621,16 +621,16 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                     <div className="bg-blue-50 dark:bg-blue-950 rounded-xl p-8 max-w-lg mx-auto">
                         <Mic className="w-16 h-16 text-blue-500 mx-auto mb-4" />
                         <h3 className="text-xl font-semibold text-foreground mb-2">
-                            Audio Overview
+                            音频概览
                         </h3>
                         <p className="text-muted-foreground mb-8">
-                            Generate a spoken summary of this paper
+                            生成这篇论文的口语总结
                         </p>
 
                         {/* Summary Focus Options */}
                         <div className="mb-6 text-left">
                             <Label className="block text-sm font-medium text-foreground mb-3">
-                                Summary Focus
+                                总结重点
                             </Label>
                             <div className="grid grid-cols-2 gap-2">
                                 <Button
@@ -641,7 +641,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                     }}
                                     className={`px-4 py-3 text-sm border rounded-lg font-medium transition-colors ${selectedFocus === 'key-results' ? 'border-blue-300 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800' : 'border-border hover:bg-accent'}`}
                                 >
-                                    Key Results
+                                    关键结果
                                 </Button>
                                 <Button
                                     variant={'outline'}
@@ -651,7 +651,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                     }}
                                     className={`px-4 py-3 text-sm border rounded-lg font-medium transition-colors ${selectedFocus === 'methodology' ? 'border-blue-300 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800' : 'border-border hover:bg-accent'}`}
                                 >
-                                    Methodology
+                                    方法论
                                 </Button>
                                 <Button
                                     variant={'outline'}
@@ -661,7 +661,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                     }}
                                     className={`px-4 py-3 text-sm border rounded-lg font-medium transition-colors ${selectedFocus === 'full-paper' ? 'border-blue-300 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800' : 'border-border hover:bg-accent'}`}
                                 >
-                                    Full Paper
+                                    完整论文
                                 </Button>
                                 <Button
                                     variant={'outline'}
@@ -671,7 +671,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                     }}
                                     className={`px-4 py-3 text-sm border rounded-lg font-medium transition-colors ${selectedFocus === 'abstract-only' ? 'border-blue-300 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800' : 'border-border hover:bg-accent'}`}
                                 >
-                                    Abstract Only
+                                    仅摘要
                                 </Button>
                             </div>
                         </div>
@@ -679,13 +679,13 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                         {/* Custom Instructions - Collapsible */}
                         <details className="mb-6 text-left">
                             <summary className="cursor-pointer text-sm font-medium text-foreground mb-3 flex items-center justify-between">
-                                Custom Instructions
+                                自定义指令
                                 <ChevronDown className="w-4 h-4" />
                             </summary>
                             <textarea
                                 value={additionalInstructions}
                                 onChange={(e) => setAdditionalInstructions(e.target.value)}
-                                placeholder="Add specific guidance for your audio overview (optional)"
+                                placeholder="为你的音频概览添加具体指导（可选）"
                                 className="w-full px-3 py-3 text-sm border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-2"
                                 rows={4}
                             />
@@ -700,7 +700,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                     }}
                                     className="px-6 py-3 text-secondary-foreground border border-border rounded-lg font-medium hover:bg-accent transition-colors"
                                 >
-                                    Cancel
+                                    取消
                                 </button>
                             )}
                             <button
@@ -712,7 +712,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                 className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
                             >
                                 <Play className="w-4 h-4" />
-                                {isLoading ? 'Generating...' : isAudioOverviewAtLimit(subscription) ? 'Limit Reached' : 'Generate Audio Overview'}
+                                {isLoading ? '生成中...' : isAudioOverviewAtLimit(subscription) ? '已达到限制' : '生成音频概览'}
                             </button>
                         </div>
 
@@ -721,14 +721,14 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                             <div className="text-red-600 dark:text-red-400 text-sm mt-4 p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800">
                                 <div className="flex items-center gap-2">
                                     <HelpCircle className="w-4 h-4" />
-                                    <span className="font-semibold">Audio Overview Limit Reached</span>
+                                    <span className="font-semibold">音频概览限制已达到</span>
                                 </div>
-                                <p className="mt-1">You&apos;ve used all your monthly audio overviews. Credits reset every Monday at 12 AM UTC.</p>
+                                <p className="mt-1">你已用完本月的所有音频概览。积分每周一上午12点UTC重置。</p>
                                 <Link
                                     href="/pricing"
                                     className="text-blue-500 hover:text-blue-700 font-medium"
                                 >
-                                    Upgrade for more audio overviews →
+                                    升级以获得更多音频概览 →
                                 </Link>
                             </div>
                         )}
@@ -754,16 +754,16 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                             </Badge>
                         </div>
                         <p className="text-primary text-lg">
-                            {jobStatus.status === 'pending' && 'Preparing your audio overview'}
+                            {jobStatus.status === 'pending' && '准备你的音频概览'}
                             {jobStatus.status === 'running' && loadingText}
-                            {jobStatus.status === 'failed' && 'Audio overview generation failed. Please try again.'}
+                            {jobStatus.status === 'failed' && '音频概览生成失败。请重试。'}
                         </p>
                         {jobStatus.status === 'failed' && (
                             <button
                                 onClick={() => setShowGenerationForm(true)}
                                 className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-lg font-medium"
                             >
-                                Try Again
+                                重试
                             </button>
                         )}
                     </div>
@@ -790,7 +790,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                     href="/pricing"
                                     className="text-blue-500 hover:text-blue-700 ml-1"
                                 >
-                                    Upgrade
+                                    升级
                                 </Link>
                             </div>
                         </div>
@@ -813,7 +813,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                 className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 text-sm font-medium flex items-center gap-1"
                             >
                                 <Download className="w-4 h-4" />
-                                Download
+                                下载
                             </a>
                             <button
                                 onClick={() => {
@@ -828,7 +828,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                 title={isAudioOverviewAtLimit(subscription) ? 'Audio overview limit reached' : 'Create new audio overview'}
                             >
                                 <Plus className="w-4 h-4 mr-1" />
-                                {isAudioOverviewAtLimit(subscription) ? 'Limit Reached' : 'New'}
+                                {isAudioOverviewAtLimit(subscription) ? '已达到限制' : '新'}
                             </button>
                         </div>
                     </div>
@@ -858,7 +858,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
 
                             <div className="flex-1">
                                 <div className="text-lg font-semibold text-secondary-foreground mb-1">
-                                    {audioOverview.title || paper_title || 'Audio Overview'}
+                                    {audioOverview.title || paper_title || '音频概览'}
                                 </div>
                                 <div className="text-sm text-secondary-foreground">
                                     {formatTime(currentTime)} / {formatTime(duration)}
@@ -890,7 +890,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                 style={{ maxWidth: '100%', height: '96px' }}
                             />
                             <div className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
-                                Click on the waveform to seek
+                                点击波形图来跳转
                             </div>
                         </div>
 
@@ -900,7 +900,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                 <button
                                     onClick={skipBackward}
                                     className="text-accent-foreground p-2 rounded-lg hover:bg-gray-200 transition-colors"
-                                    title="Skip back 10s"
+                                    title="跳回10秒"
                                 >
                                     <span className="text-xs">10s</span>
                                     <RotateCcw className="w-4 h-4" />
@@ -908,7 +908,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                                 <button
                                     onClick={skipForward}
                                     className="text-accent-foreground p-2 rounded-lg hover:bg-gray-200 transition-colors"
-                                    title="Skip forward 10s"
+                                    title="跳到10秒"
                                 >
                                     <span className="text-xs">10s</span>
                                     <RotateCcw className="w-4 h-4 scale-x-[-1]" />
@@ -916,7 +916,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                             </div>
 
                             <div className="flex items-center space-x-1">
-                                <span className="text-sm text-accent-foreground mr-2">Speed:</span>
+                                <span className="text-sm text-accent-foreground mr-2">速度:</span>
                                 {[0.75, 1, 1.25, 1.5, 2].map((speed) => (
                                     <button
                                         key={speed}
@@ -972,7 +972,7 @@ export function AudioOverview({ paper_id, paper_title, setExplicitSearchTerm }: 
                     {/* Citations */}
                     {audioOverview.citations && audioOverview.citations.length > 0 && (
                         <div className="mt-6">
-                            <h4 className="text-md font-semibold mb-2">Citations</h4>
+                            <h4 className="text-md font-semibold mb-2">引用</h4>
                             <div className="space-y-1">
                                 {audioOverview.citations.map((citation) => (
                                     <div key={citation.index} className="flex items-center gap-1">

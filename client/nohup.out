@@ -1,0 +1,369 @@
+
+> client@0.1.0 dev
+> next dev --port 3000
+
+   ▲ Next.js 15.2.3
+   - Local:        http://localhost:3000
+   - Network:      http://172.16.137.127:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.8s
+ ○ Compiling / ...
+ ✓ Compiled / in 9.1s (1303 modules)
+ GET / 200 in 1664ms
+ GET / 200 in 800ms
+ ✓ Compiled in 1351ms (592 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.2s (1600 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 2934ms
+ GET / 200 in 514ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 243ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 208ms
+ GET / 200 in 213ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 248ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 214ms
+ ○ Compiling /paper/[id] ...
+ ✓ Compiled /paper/[id] in 5.3s (2623 modules)
+ GET /paper/2d7a66df-73a9-4280-b9ae-82b0a2973a3a 200 in 7383ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 329ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 211ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1369ms (2484 modules)
+ GET /pdf.worker.mjs.map 404 in 852ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1678ms
+ GET /paper/2d7a66df-73a9-4280-b9ae-82b0a2973a3a 200 in 989ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 46ms
+ ✓ Compiled /_error in 470ms (2527 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 815ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 213ms
+ GET /pdf.worker.mjs.map 404 in 166ms
+ GET /paper/2d7a66df-73a9-4280-b9ae-82b0a2973a3a 200 in 953ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 46ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 259ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 213ms
+ GET /pdf.worker.mjs.map 404 in 48ms
+
+> client@0.1.0 dev
+> next dev --port 3000
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+[?25h
+ ✓ Compiled in 984ms (1276 modules)
+ GET /paper/2d7a66df-73a9-4280-b9ae-82b0a2973a3a 200 in 67ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 708ms (2522 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 1041ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 208ms
+ GET / 200 in 495ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 268ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 207ms
+ GET / 200 in 65ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 213ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 208ms
+ GET / 200 in 62ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 238ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 223ms
+ ○ Compiling /finder ...
+ ✓ Compiled /finder in 1870ms (2577 modules)
+ GET /finder 200 in 2331ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 262ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 209ms
+ GET / 200 in 137ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 234ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 209ms
+ GET /paper/b93e30ad-88a8-46c8-b666-70360f7f58d5 200 in 776ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 217ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 207ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1417ms (2582 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1703ms
+ GET /pdf.worker.mjs.map 404 in 895ms
+
+> client@0.1.0 dev
+> next dev --port 3000
+
+   ▲ Next.js 15.2.3
+   - Local:        http://localhost:3000
+   - Network:      http://172.16.137.127:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 4.2s (1285 modules)
+ GET / 200 in 5034ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_error in 2.5s (1605 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1990ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 1292ms
+ GET / 200 in 311ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 35ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 321ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 209ms
+ GET /static/pdf/15d16212-3711-4cf9-b0c6-b92e1ff57ea0-preview-2feddf68-7b7f-4b33-be4c-21dc7eb02510.png 404 in 39ms
+ ○ Compiling /paper/[id] ...
+ ✓ Compiled /paper/[id] in 2.8s (2527 modules)
+ GET /paper/dff9a6b5-bc22-4733-afda-6b474cb46215 200 in 4685ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 46ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 268ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 212ms
+ GET /pdf.worker.mjs.map 404 in 44ms
+
+> client@0.1.0 dev
+> next dev --port 3000
+
+   ▲ Next.js 15.2.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.27:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.9s
+ ○ Compiling / ...
+ ✓ Compiled / in 4s (1285 modules)
+ GET / 200 in 4784ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1754ms (1276 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1275ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 616ms (1605 modules)
+ GET / 200 in 550ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 1166ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 249ms
+ GET /static/pdf/22c16932-344f-4bae-9bee-0968f20b2244-preview-c2bc5c6b-1019-46c4-b55a-66c9b74502c6.png 404 in 108ms
+ GET /static/pdf/15d16212-3711-4cf9-b0c6-b92e1ff57ea0-preview-2feddf68-7b7f-4b33-be4c-21dc7eb02510.png 404 in 52ms
+ GET / 200 in 59ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 231ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 226ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 285ms
+ ○ Compiling /paper/[id] ...
+ ✓ Compiled /paper/[id] in 3.1s (2522 modules)
+ GET /paper/0472e663-4cb7-455a-8057-050036d86667 200 in 5135ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 596ms (2527 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 772ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 647ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 207ms
+ GET /pdf.worker.mjs.map 404 in 60ms
+ GET /paper/0472e663-4cb7-455a-8057-050036d86667 200 in 790ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 98ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 231ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 217ms
+ GET /pdf.worker.mjs.map 404 in 46ms
+ GET /paper/0472e663-4cb7-455a-8057-050036d86667 200 in 207ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 75ms
+ GET /paper/0472e663-4cb7-455a-8057-050036d86667 200 in 92ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 56ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 233ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 210ms
+ GET /pdf.worker.mjs.map 404 in 35ms
+
+> client@0.1.0 dev
+> next dev --port 3000
+
+ ⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+[?25h
+ ✓ Compiled in 1579ms (1276 modules)
+ GET /paper/0472e663-4cb7-455a-8057-050036d86667 200 in 69ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 604ms (2522 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 922ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 209ms
+ GET /paper/0472e663-4cb7-455a-8057-050036d86667 200 in 969ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 734ms (2527 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 947ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 289ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 213ms
+ GET /pdf.worker.mjs.map 404 in 33ms
+ GET /static/pdf/ac5084db-e776-4c04-9086-f53c59d2dac4-pdf-1fcef0e7-e192-45d5-95ae-d5431a4b4e0b.pdf 404 in 28ms
+ GET / 200 in 720ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 115ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 275ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 211ms
+ GET / 200 in 68ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 35ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 368ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 225ms
+ GET /static/pdf/30f4098b-8770-450c-9b10-745f65417567-preview-8cd58c27-e2e0-43ec-96f6-8f4bb3c7fdfb.png 404 in 64ms
+ GET /static/pdf/15d16212-3711-4cf9-b0c6-b92e1ff57ea0-preview-2feddf68-7b7f-4b33-be4c-21dc7eb02510.png 404 in 81ms
+ GET /static/pdf/22c16932-344f-4bae-9bee-0968f20b2244-preview-c2bc5c6b-1019-46c4-b55a-66c9b74502c6.png 404 in 86ms
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 427ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 38ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 227ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 217ms
+ GET /pdf.worker.mjs.map 404 in 23ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 69ms
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 302ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 77ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 780ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 215ms
+ GET /pdf.worker.mjs.map 404 in 29ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 53ms
+ ✓ Compiled in 1528ms (2493 modules)
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 294ms
+ ✓ Compiled /_error in 376ms (2522 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 726ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 210ms
+ ✓ Compiled /_not-found in 312ms (2527 modules)
+ GET /pdf.worker.mjs.map 404 in 556ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 556ms
+ ✓ Compiled in 801ms (2541 modules)
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 238ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 303ms
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 801ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 77ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 312ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 212ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 43ms
+ GET /pdf.worker.mjs.map 404 in 34ms
+ ✓ Compiled in 1424ms (2498 modules)
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 235ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 758ms (2527 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 1149ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 208ms
+ GET /pdf.worker.mjs.map 404 in 156ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 158ms
+ ✓ Compiled in 1531ms (2493 modules)
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 308ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 782ms (2522 modules)
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 1211ms
+ ✓ Compiled in 499ms (2536 modules)
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 131ms
+ ✓ Compiled /_not-found in 367ms (2527 modules)
+ GET /pdf.worker.mjs.map 404 in 654ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 657ms
+ ✓ Compiled in 4.7s (2527 modules)
+ GET /pdf.worker.mjs.map 404 in 807ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 826ms
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 542ms
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 877ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 54ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 370ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 211ms
+ GET /pdf.worker.mjs.map 404 in 58ms
+ GET /static/pdf/903b9f7a-de75-4c1f-8d3b-91d158c78859-pdf-a8692385-55d5-4d24-bc85-0163e6987987.pdf 404 in 37ms
+ GET /paper/770bb2d4-2cfd-404f-a56a-c64cf2b5b91d 200 in 330ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 115ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 263ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 207ms
+ GET / 200 in 235ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 87ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 269ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 207ms
+ GET / 200 in 61ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 35ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 215ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 208ms
+ GET /static/pdf/3524dc66-5688-413f-97d9-1c6edf9cd09d-preview-27cc9e04-9f4d-4006-8fc9-624a586d34b4.png 404 in 37ms
+ GET / 200 in 69ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 33ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 212ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 213ms
+ GET /static/pdf/3524dc66-5688-413f-97d9-1c6edf9cd09d-preview-27cc9e04-9f4d-4006-8fc9-624a586d34b4.png 404 in 47ms
+ GET /static/pdf/30f4098b-8770-450c-9b10-745f65417567-preview-8cd58c27-e2e0-43ec-96f6-8f4bb3c7fdfb.png 404 in 92ms
+ GET /static/pdf/22c16932-344f-4bae-9bee-0968f20b2244-preview-c2bc5c6b-1019-46c4-b55a-66c9b74502c6.png 404 in 86ms
+ GET /paper/ead2eb4d-84d7-46fb-bb4d-cb43e016b64b 200 in 133ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 33ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 229ms
+ ⨯ A conflicting public file and page file was found for path /icon.svg https://nextjs.org/docs/messages/conflicting-public-file-page
+ GET /icon.svg 500 in 207ms
+ GET /pdf.worker.mjs.map 404 in 23ms
+ GET /static/pdf/a0f6ffcd-5179-4257-83af-c543f873c98c-pdf-57e10dbe-2ba3-4ff4-aecd-dd05e15b3e2d.pdf 404 in 44ms
+ ⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+   ▲ Next.js 15.2.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.27:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.6s

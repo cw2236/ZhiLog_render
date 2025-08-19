@@ -127,7 +127,7 @@ export default function PaperSearchResultCard({ paper, searchTerm, setPaper, han
                             )}
                             <div className="flex items-center gap-1">
                                 <FileText className="h-3 w-3" />
-                                <span>Added {formatDate(paper.created_at)}</span>
+                                <span>添加于 {formatDate(paper.created_at)}</span>
                             </div>
                         </div>
 
@@ -150,7 +150,7 @@ export default function PaperSearchResultCard({ paper, searchTerm, setPaper, han
                                 {annotationCount > 0 && (
                                     <div className="flex items-center gap-1">
                                         <MessageSquare className="h-3 w-3 text-blue-600" />
-                                        <span>{annotationCount} annotation{annotationCount !== 1 ? 's' : ''}</span>
+                                        <span>{annotationCount} 注释{annotationCount !== 1 ? 's' : ''}</span>
                                     </div>
                                 )}
                             </div>
@@ -247,15 +247,15 @@ export default function PaperSearchResultCard({ paper, searchTerm, setPaper, han
                                     </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
-                                    <AlertDialogTitle>Delete Paper</AlertDialogTitle>
+                                    <AlertDialogTitle>删除论文</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Are you sure you want to delete &quot;{paper.title}&quot;?
-                                        This action cannot be undone.
+                                        你确定要删除 &quot;{paper.title}&quot; 吗？
+                                        此操作无法撤销。
                                     </AlertDialogDescription>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogCancel>取消</AlertDialogCancel>
                                         <AlertDialogAction onClick={() => handleDelete(paper.id)}>
-                                            Delete
+                                            删除
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -280,7 +280,7 @@ export default function PaperSearchResultCard({ paper, searchTerm, setPaper, han
                                     </p>
                                     <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                                         {highlight.page_number && (
-                                            <span>Page {highlight.page_number}</span>
+                                            <span>第 {highlight.page_number} 页</span>
                                         )}
                                         <span>•</span>
                                         <span>{formatDate(highlight.created_at)}</span>
@@ -289,7 +289,7 @@ export default function PaperSearchResultCard({ paper, searchTerm, setPaper, han
                                                 <span>•</span>
                                                 <span className="flex items-center gap-1">
                                                     <MessageSquare className="h-3 w-3" />
-                                                    {highlight.annotations.length} note{highlight.annotations.length !== 1 ? 's' : ''}
+                                                    {highlight.annotations.length} 条笔记
                                                 </span>
                                             </>
                                         )}
@@ -326,7 +326,7 @@ export default function PaperSearchResultCard({ paper, searchTerm, setPaper, han
                                         </p>
                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                                             {annotation.highlight.page_number && (
-                                                <span>Page {annotation.highlight.page_number}</span>
+                                                <span>第 {annotation.highlight.page_number} 页</span>
                                             )}
                                             <span>•</span>
                                             <span>{formatDate(annotation.highlight.created_at)}</span>

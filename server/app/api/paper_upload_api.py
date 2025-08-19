@@ -40,6 +40,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Request, UploadFi
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.orm import Session
+from app.services.storage import storage_service
 
 load_dotenv()
 
@@ -324,15 +325,6 @@ async def upload_raw_file_microservice(
     """
     Helper function to upload a raw file using the microservice.
     """
-
-    if not filename or not filename.lower().endswith(".pdf"):
-        paper_upload_job_crud.mark_as_failed(
-            db=db,
-            job_id=str(paper_upload_job.id),
-            user=current_user,
-        )
-        return
-
     paper_upload_job_crud.mark_as_running(
         db=db,
         job_id=str(paper_upload_job.id),
@@ -342,7 +334,8 @@ async def upload_raw_file_microservice(
     try:
         # Submit to microservice
         task_id = pdf_jobs_client.submit_pdf_processing_job(
-            pdf_bytes=file_contents, job_id=str(paper_upload_job.id)
+            pdf_bytes=file_contents,
+            job_id=str(paper_upload_job.id)
         )
 
         # Update job with task_id
@@ -353,13 +346,14 @@ async def upload_raw_file_microservice(
             user=current_user,
         )
 
-        # Track paper upload event
+        # Track the upload event
         track_event(
-            "paper_upload_submitted_to_microservice",
+            event_name="paper_upload",
             properties={
-                "task_id": task_id,
+                "upload_type": "file",
+                "job_id": str(paper_upload_job.id),
             },
-            user_id=str(current_user.id),
+            user_id=str(current_user.id)
         )
 
     except Exception as e:

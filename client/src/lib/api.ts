@@ -64,3 +64,36 @@ export async function fetchStreamFromApi(
 
     return response.body;
 }
+
+// 添加聊天历史相关的 API 函数
+export async function saveChatHistory(paperId: string, message: string, role: string, chatType: string, threadId?: string) {
+  return await fetchFromApi('/api/chat-history', {
+    method: 'POST',
+    body: JSON.stringify({
+      paper_id: paperId,
+      message,
+      role,
+      chat_type: chatType,
+      thread_id: threadId,
+      sequence: Date.now()  // 使用时间戳作为序列号
+    })
+  });
+}
+
+export async function getChatHistory(paperId: string, chatType: string, threadId?: string) {
+  const params = new URLSearchParams({
+    chat_type: chatType,
+    ...(threadId && { thread_id: threadId })
+  });
+  return await fetchFromApi(`/api/chat-history/paper/${paperId}?${params}`);
+}
+
+export async function deleteChatHistory(paperId: string, chatType: string, threadId?: string) {
+  const params = new URLSearchParams({
+    chat_type: chatType,
+    ...(threadId && { thread_id: threadId })
+  });
+  return await fetchFromApi(`/api/chat-history/paper/${paperId}?${params}`, {
+    method: 'DELETE'
+  });
+}

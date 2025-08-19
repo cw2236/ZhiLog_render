@@ -40,7 +40,7 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
     } = props;
 
     const [offsets, setOffsets] = useState<{ start: number; end: number } | null>(null);
-
+    const [savedSelection, setSavedSelection] = useState<string>("");
 
     useEffect(() => {
         if (selectedText) {
@@ -200,13 +200,39 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
                 <Button
                     variant="ghost"
                     className="w-full flex items-center justify-between text-sm font-normal h-9 px-2"
-                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        // 保存当前选择
+                        const currentSelection = window.getSelection();
+                        setSavedSelection(currentSelection?.toString().trim() || "");
+                    }}
                     onClick={(e) => {
-                        setUserMessageReferences(prev => Array.from(new Set([...prev, selectedText])));
-                        setSelectedText("");
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // 使用保存的选择
+                        const textToUse = savedSelection || selectedText;
+                        
+                        if (!textToUse || !textToUse.trim()) {
+                            console.log('No selected text, showing alert');
+                            alert('Please select a text first to add to Chat');
+                            return;
+                        }
+                        
+                        console.log('Proceeding with Add to Chat for text:', textToUse);
+                        // 先创建高亮
+                        addHighlight(textToUse, offsets?.start, offsets?.end);
+                        // 通过自定义事件通知主页面新建thread
+                        if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('addBubbleCommentThread', { 
+                                detail: { 
+                                    text: textToUse,
+                                    shouldSwitchToChat: true // 添加标志
+                                } 
+                            }));
+                        }
                         setTooltipPosition(null);
                         setIsAnnotating(false);
-                        e.stopPropagation();
                     }}
                 >
                     <div className="flex items-center gap-2">
@@ -237,7 +263,7 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
                     >
                         <div className="flex items-center gap-2">
                             <Minus size={14} />
-                            Delete
+                            Remove
                         </div>
                         <CommandShortcut className="text-muted-foreground">
                             {localizeCommandToOS('D')}

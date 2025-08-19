@@ -53,7 +53,7 @@ export function AnnotationButton({ highlightId, addAnnotation }: AnnotationButto
 						handleSave();
 					}
 				})}
-				placeholder="Store your thoughts here."
+				placeholder="Record your thoughts here."
 				className="text-sm"
 				rows={3}
 				autoFocus

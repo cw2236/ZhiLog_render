@@ -16,7 +16,7 @@ md = MarkItDown()
 
 from src.s3_service import s3_service
 from src.schemas import PDFImage
-from src.llm_client import fast_llm_client
+from src.llm_client import get_llm_client
 from src.image_helpers import should_include_image, calculate_image_hash, analyze_image_quality
 
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ def map_pages_to_text_offsets(
     return page_offsets
 
 
-def generate_pdf_preview(file_path: str) -> Tuple[str, str]:
+async def generate_pdf_preview(file_path: str) -> Tuple[str, str]:
     """
     Generate a preview image from the first page of a PDF.
 
@@ -143,15 +143,15 @@ def generate_pdf_preview(file_path: str) -> Tuple[str, str]:
         # Create filename for preview
         preview_filename = f"preview-{uuid.uuid4()}.png"
 
-        # Upload to S3
-        preview_object_key, preview_url = s3_service.upload_any_file_from_bytes(
+        # Upload to OpenAI
+        file_id, preview_url = await s3_service.upload_any_file_from_bytes(
             img_buffer.getvalue(),
             preview_filename,
             content_type="image/png",
         )
 
         doc.close()
-        return preview_object_key, preview_url
+        return preview_url, preview_url  # Return preview_url for both object_key and url
 
     except Exception as e:
         logger.error(f"Error generating PDF preview: {str(e)}")
@@ -253,8 +253,8 @@ async def extract_text_and_images_combined(file_path: str, job_id: str) -> Tuple
                     }
                     content_type = content_type_map.get(image_ext.lower(), "image/png")
 
-                    # Upload to S3
-                    s3_object_key, image_url = s3_service.upload_any_file_from_bytes(
+                    # Upload to OpenAI
+                    file_id, image_url = await s3_service.upload_any_file_from_bytes(
                         image_bytes,
                         image_filename,
                         content_type=content_type
@@ -265,7 +265,7 @@ async def extract_text_and_images_combined(file_path: str, job_id: str) -> Tuple
                         placeholder_id=placeholder_id,  # Add this field
                         page_number=page_num + 1,
                         image_index=img_index + 1,
-                        s3_object_key=s3_object_key,
+                        s3_object_key=image_url,  # Use image_url instead of file_id
                         image_url=image_url,
                         width=int(width),
                         height=int(height),
@@ -381,15 +381,8 @@ async def extract_captions_for_images(images: List[PDFImage], file_path: str, im
     if not images:
         return images
 
-    # Create file cache for the PDF
-    cache_key = None
-    try:
-        fast_llm_client.refresh_client()
-        cache_key = await fast_llm_client.create_file_cache(file_path)
-        logger.info(f"Created file cache for caption extraction: {cache_key}")
-    except Exception as cache_error:
-        logger.warning(f"Failed to create file cache: {cache_error}")
-        return images
+    # Get LLM client
+    llm_client = get_llm_client()
 
     async def extract_caption_for_image(pdf_image: PDFImage) -> PDFImage:
         """Extract caption for a single image"""
@@ -418,8 +411,8 @@ async def extract_captions_for_images(images: List[PDFImage], file_path: str, im
             }
             image_mime_type = content_type_map.get(pdf_image.format, "image/png")
 
-            caption_result = await fast_llm_client.extract_image_captions(
-                cache_key=cache_key,
+            caption_result = await llm_client.extract_image_captions(
+                cache_key=None,  # No cache for OpenAI
                 image_data=image_bytes,
                 image_mime_type=image_mime_type
             )

@@ -17,6 +17,7 @@ from app.database.database import get_db
 from app.database.models import Paper, PaperStatus
 from app.database.telemetry import track_event
 from app.helpers.s3 import s3_service
+from app.llm.client import get_llm_client
 from app.llm.schemas import ResponseCitation
 from app.schemas.user import CurrentUser
 from dotenv import load_dotenv
@@ -24,6 +25,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from app.services.storage import storage_service
 
 load_dotenv()
 
@@ -381,27 +383,28 @@ async def get_pdf(
 
     paper_data = paper.to_dict()
 
-    signed_url = s3_service.get_cached_presigned_url(
-        db,
-        paper_id=str(paper.id),
-        object_key=str(paper.s3_object_key),
-        current_user=current_user,
-    )
-    if not signed_url:
-        return JSONResponse(status_code=404, content={"message": "File not found"})
+    try:
+        # 使用 storage_service 获取文件 URL
+        file_url = await storage_service.get_file_url(paper.file_url)
+        paper_data["file_url"] = file_url
 
-    paper_data["file_url"] = signed_url
-    paper_data["summary_citations"] = [  # type: ignore
-        ResponseCitation.model_validate(citation).model_dump()
-        for citation in paper.summary_citations or []
-    ]
+        paper_data["summary_citations"] = [  # type: ignore
+            ResponseCitation.model_validate(citation).model_dump()
+            for citation in paper.summary_citations or []
+        ]
 
-    paper_data["summary"] = paper_crud.get_summary_replace_image_placeholders(
-        db, paper_id=id, current_user=current_user
-    )
+        paper_data["summary"] = paper_crud.get_summary_replace_image_placeholders(
+            db, paper_id=id, current_user=current_user
+        )
 
-    # Return the file URL
-    return JSONResponse(status_code=200, content=paper_data)
+        # Return the file URL
+        return JSONResponse(status_code=200, content=paper_data)
+    except Exception as e:
+        logger.error(f"Error getting paper file URL: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Error getting paper file"}
+        )
 
 
 @paper_router.post("/share")
@@ -560,4 +563,93 @@ async def delete_pdf(
         return JSONResponse(
             status_code=500,
             content={"message": f"Error deleting document: {str(e)}"},
+        )
+
+
+@paper_router.post("/{paper_id}/chat")
+async def chat_with_paper(
+    paper_id: str,
+    request: Request,
+    current_user: CurrentUser = Depends(get_required_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Chat with the paper using the full text as context.
+    """
+    try:
+        # 获取请求体
+        body = await request.json()
+        message = body.get("message")
+        context_type = body.get("context_type", "selected_text")  # 默认使用选中文本作为上下文
+
+        if not message:
+            raise HTTPException(status_code=400, detail="Message is required")
+
+        # 获取论文
+        paper = paper_crud.get(db=db, id=paper_id, user=current_user)
+        if not paper:
+            raise HTTPException(status_code=404, detail="Paper not found")
+
+        # 根据 context_type 决定使用什么作为上下文
+        if context_type == "full_text":
+            # 使用论文全文作为上下文
+            if not paper.raw_content:
+                return JSONResponse(
+                    status_code=200,
+                    content={"message": "抱歉，这篇论文的文本内容还未提取。请稍后再试。"}
+                )
+            context = paper.raw_content
+        else:
+            # 使用选中的文本作为上下文
+            context = body.get("context", "")
+
+        # 调用 LLM 生成回答
+        llm_client = get_llm_client()
+        response = await llm_client.generate_content(
+            f"""Based on the following paper content, please answer the question:
+
+Content: {context}
+
+Question: {message}
+
+Please provide a clear and concise answer based on the paper content."""
+        )
+
+        return JSONResponse(
+            status_code=200,
+            content={"message": response}
+        )
+
+    except Exception as e:
+        logger.error(f"Error in chat_with_paper: {e}")
+        # 返回更具体的错误信息
+        return JSONResponse(
+            status_code=500,
+            content={"message": f"处理请求时遇到错误：{str(e)}"}
+        )
+
+
+@paper_router.get("/{paper_id}/file")
+async def get_paper_file(
+    paper_id: str,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_required_user),
+) -> JSONResponse:
+    """Get the paper file URL"""
+    paper = paper_crud.get(db=db, id=paper_id, user=current_user)
+    if not paper:
+        return JSONResponse(status_code=404, content={"message": "Paper not found"})
+
+    try:
+        # 使用 storage_service 获取文件 URL
+        file_url = await storage_service.get_file_url(paper.file_url)
+        return JSONResponse(
+            status_code=200,
+            content={"file_url": file_url}
+        )
+    except Exception as e:
+        logger.error(f"Error getting paper file URL: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Error getting paper file"}
         )

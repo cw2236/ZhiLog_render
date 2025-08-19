@@ -16,13 +16,15 @@ from app.api.paper_upload_api import paper_upload_router
 from app.api.search_api import search_router
 from app.api.subscription_api import subscription_router
 from app.api.webhook_api import webhook_router
+from app.api.chat_history_api import chat_history_router
 from app.database.admin import setup_admin
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(
-    level=logging.ERROR,
+    level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
@@ -45,8 +47,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
-    allow_credentials=True,  # This is required for cookies
-    max_age=600,  # Cache preflight requests for 10 minutes
+    allow_credentials=True,
+    max_age=3600,
 )
 
 # Include the router in the main app
@@ -66,6 +68,11 @@ app.include_router(
     subscription_router, prefix="/api/subscription"
 )  # Subscription routes
 app.include_router(webhook_router, prefix="/api/webhooks")  # Webhook routes
+app.include_router(chat_history_router, prefix="/api/chat-history", tags=["chat-history"])
+
+# 挂载 jobs/uploads 目录为 /static/pdf
+pdf_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../jobs/uploads'))
+app.mount("/static/pdf", StaticFiles(directory=pdf_dir), name="pdf")
 
 setup_admin(app)  # Setup admin interface
 

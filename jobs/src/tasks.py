@@ -15,7 +15,7 @@ from src.celery_app import celery_app
 from src.schemas import PDFProcessingResult, PaperMetadataExtraction, PDFImage
 from src.s3_service import s3_service
 from src.parser import extract_text_and_images_combined, generate_pdf_preview, map_pages_to_text_offsets, extract_captions_for_images
-from src.llm_client import llm_client
+from src.llm_client import get_llm_client
 from src.utils import time_it
 
 logger = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ def run_async_safely(coro: Coroutine[Any, Any, T]) -> T:
 async def process_pdf_file(
     pdf_bytes: bytes,
     job_id: str,
-    status_callback: Callable[[str], None],
+    status_callback: Callable[str, None],
 ) -> PDFProcessingResult:
     """
     Process a PDF file by extracting metadata and uploading to S3.
@@ -127,8 +127,7 @@ async def process_pdf_file(
 
         async def upload_pdf_async():
             status_callback("PDF ascending to the cloud")
-            return await asyncio.to_thread(
-                s3_service.upload_any_file,
+            return await s3_service.upload_any_file(
                 temp_file_path,
                 safe_filename,
                 "application/pdf"
@@ -137,7 +136,7 @@ async def process_pdf_file(
         async def generate_preview_async():
             status_callback("Taking a snapshot")
             try:
-                return await asyncio.to_thread(generate_pdf_preview, temp_file_path)
+                return await generate_pdf_preview(temp_file_path)
             except Exception as e:
                 logger.warning(f"Failed to generate preview for {safe_filename}: {str(e)}")
                 return None, None
@@ -156,6 +155,9 @@ async def process_pdf_file(
             except Exception as e:
                 logger.error(f"Failed to extract images from {safe_filename}: {str(e)}", exc_info=True)
                 return []
+
+        # Get LLM client
+        llm_client = get_llm_client()
 
         # Run I/O-bound tasks and LLM extraction concurrently
         async with time_it("Running I/O-bound tasks and LLM extraction concurrently", job_id=job_id):
@@ -183,7 +185,7 @@ async def process_pdf_file(
         if isinstance(upload_result, Exception):
             logger.error(f"Failed to upload PDF: {upload_result}")
             raise upload_result
-        object_key, file_url = upload_result # type: ignore
+        file_id, file_url = upload_result # type: ignore
         logger.info(f"Uploaded PDF to S3: {file_url}")
 
         if isinstance(preview_result, Exception):
@@ -232,15 +234,16 @@ async def process_pdf_file(
         return PDFProcessingResult(
             success=True,
             metadata=metadata,
-            s3_object_key=object_key,
-            file_url=file_url,
+            s3_object_key=file_id,  # 使用 file_id 作为 S3 对象键
+            file_url=file_url,  # 使用 file_url 作为文件 URL
             preview_url=preview_url,
             preview_object_key=preview_object_key,
-            extracted_images=extracted_images,
+            extracted_images=extracted_images if extracted_images else [],
             job_id=job_id,
             raw_content=pdf_text,
             page_offset_map=page_offsets,
             duration=duration,
+            has_file_url=True,  # 添加这个字段
         )
 
     except Exception as e:
@@ -250,6 +253,16 @@ async def process_pdf_file(
             success=False,
             error=str(e),
             job_id=job_id,
+            has_file_url=False,  # 添加这个字段
+            metadata=None,
+            s3_object_key=None,
+            file_url=None,
+            preview_url=None,
+            preview_object_key=None,
+            extracted_images=[],
+            raw_content=None,
+            page_offset_map=None,
+            duration=None
         )
     finally:
         # Clean up temporary file
