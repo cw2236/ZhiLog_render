@@ -2,13 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { AuthProvider } from "@/lib/auth";
-import OnboardingChecklist from "@/components/OnboardingChecklist";
 import { Toaster } from "@/components/ui/sonner";
 import { PostHogProvider, ThemeProvider } from "@/lib/providers";
-import { SidebarController } from "@/components/utils/SidebarAutoCollapse";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -21,28 +17,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Open Paper",
-	description: "The fastest way to annotate and deeply understand research papers.",
+	title: "ZhiLog - AI Paper Reading Assistant",
+	description: "Your AI Paper Reading Assistant for Efficient Academic Research",
 	icons: {
 		icon: "/icon.svg"
 	},
 	openGraph: {
-		title: "Open Paper",
-		description: "The fastest way to annotate and deeply understand research papers.",
+		title: "ZhiLog - AI Paper Reading Assistant",
+		description: "Your AI Paper Reading Assistant for Efficient Academic Research",
 		images: [
 			{
 				url: "https://assets.khoj.dev/openpaper/hero_open_paper2.png",
 				width: 1280,
 				height: 640,
-				alt: "Open Paper",
+				alt: "ZhiLog",
 			}
 		],
 		type: "website",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Open Paper",
-		description: "The fastest way to annotate and deeply understand your research papers.",
+		title: "ZhiLog - AI Paper Reading Assistant",
+		description: "Your AI Paper Reading Assistant for Efficient Academic Research",
 		images: ["https://assets.khoj.dev/openpaper/hero_open_paper2.png"],
 	},
 };
@@ -54,53 +50,27 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<head>
-				<script
-					id="theme-script"
-					dangerouslySetInnerHTML={{
-						__html: `
-      try {
-        if (localStorage.getItem('darkMode') === 'dark' ||
-            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      } catch (e) {}
-    `,
-					}}
-				/>
-				<script defer data-domain="openpaper.ai" src="https://plausible.io/js/script.js"></script>
-			</head>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<ThemeProvider>
-					<AuthProvider>
-						<PostHogProvider>
-							<SidebarProvider>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<PostHogProvider>
+						<AuthProvider>
+							<div className="flex h-screen">
 								<AppSidebar />
-								<SidebarInset>
-									<header className="modern-header flex h-14 shrink-0 items-center gap-2 px-4">
-										<SidebarTrigger className="-ml-1 hover:bg-muted/50 rounded-lg p-2 transition-colors" />
-										<Separator orientation="vertical" className="mr-2 h-6" />
-										<header className="flex flex-1 items-center gap-2">
-											<OnboardingChecklist />
-										</header>
-									</header>
-									<SidebarController>
-										{children}
-									</SidebarController>
-								</SidebarInset>
-							</SidebarProvider>
-						</PostHogProvider>
-					</AuthProvider>
+								<main className="flex-1 overflow-hidden">
+									{children}
+								</main>
+							</div>
+							<Toaster />
+						</AuthProvider>
+					</PostHogProvider>
 				</ThemeProvider>
-				<Toaster
-					position="top-right"
-					richColors
-					duration={3000}
-				/>
 			</body>
 		</html>
 	);

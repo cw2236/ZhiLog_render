@@ -1,362 +1,255 @@
-"use client"
-
-import { AlertTriangle, Clock, FileText, Globe2, Home, LogOut, MessageCircleQuestion, Moon, Route, Sun, User, X } from "lucide-react";
-
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
-import { fetchFromApi } from "@/lib/api";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import styles from "./AppSidebar.module.css";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useIsDarkMode } from "@/hooks/useDarkMode";
-import { useSubscription, isStorageAtLimit, isPaperUploadAtLimit, isStorageNearLimit, isPaperUploadNearLimit } from "@/hooks/useSubscription";
-import Image from "next/image";
-import Link from "next/link";
-import { PaperStatus } from "@/components/utils/PdfStatus";
-
-// Menu items.
-const items = [
-    {
-        title: "Home",
-        url: "/",
-        icon: Home,
-        requiresAuth: false,
-    },
-    {
-        title: "Find Papers",
-        url: "/finder",
-        icon: Globe2,
-        requiresAuth: false,
-    },
-    {
-        title: "My Papers",
-        url: "/papers",
-        icon: FileText,
-        requiresAuth: true,
-    },
-    {
-        title: "Feedback",
-        url: "https://zhilog.framer.website/",
-        icon: MessageCircleQuestion,
-        requiresAuth: false,
-    }
-]
-
-
-export interface PaperItem {
-    id: string
-    title: string
-    abstract?: string
-    authors?: string[]
-    keywords?: string[]
-    institutions?: string[]
-    summary?: string
-    created_at?: string
-    status?: PaperStatus
-    preview_url?: string
-    size_in_kb?: number
-}
 
 export function AppSidebar() {
+  //----------------------------------------------
+  // Domain
+  //--------------------------------------------------
+  const domain =
+    process.env.NODE_ENV === "development" ? "http://localhost:4000" : "";
+  //----------------------------------------------
+
+  //----------------------------------------------
+  // Var
+  //--------------------------------------------------
     const router = useRouter();
-    const { user, logout } = useAuth();
-    const [allPapers, setAllPapers] = useState<PaperItem[]>([])
-    const { darkMode, toggleDarkMode } = useIsDarkMode();
-    const { subscription, loading: subscriptionLoading } = useSubscription();
-    const [dismissedWarning, setDismissedWarning] = useState<string | null>(null);
+  //----------------------------------------------
 
-    useEffect(() => {
-        // Define an async function inside useEffect
-        const fetchPapers = async () => {
-            try {
-                const response = await fetchFromApi("/api/paper/active");
-                const sortedPapers = response.papers.sort((a: PaperItem, b: PaperItem) => {
-                    return new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime();
-                });
-                setAllPapers(sortedPapers);
-            } catch (error) {
-                console.error("Error fetching papers:", error);
-                setAllPapers([]);
-            }
-        }
+  //----------------------------------------------
+  // Func
+  //--------------------------------------------------
 
-        // Call the async function
-        fetchPapers();
-    }, [user]);
-
-    const handleLogout = async () => {
-        await logout();
-        router.push('/login');
-    }
-
-    // Determine current subscription warning state
-    const getSubscriptionWarning = () => {
-        if (!subscription || !user || subscriptionLoading) return null;
-
-        // Check for critical states first (red warnings)
-        if (isStorageAtLimit(subscription)) {
-            return {
-                type: 'error' as const,
-                key: 'storage-limit',
-                title: 'Storage limit reached',
-                description: 'Upgrade your plan or delete papers to continue.',
-            };
-        }
-
-        if (isPaperUploadAtLimit(subscription)) {
-            return {
-                type: 'error' as const,
-                key: 'upload-limit',
-                title: 'Upload limit reached',
-                description: 'Upgrade your plan to upload more.',
-            };
-        }
-
-        // Check for warning states (yellow warnings)
-        if (isStorageNearLimit(subscription)) {
-            return {
-                type: 'warning' as const,
-                key: 'storage-near-limit',
-                title: 'Storage nearly full',
-                description: 'Consider upgrading your plan.',
-            };
-        }
-
-        if (isPaperUploadNearLimit(subscription)) {
-            return {
-                type: 'warning' as const,
-                key: 'upload-near-limit',
-                title: 'Upload limit approaching',
-                description: 'Consider upgrading your plan.',
-            };
-        }
-
-        return null;
-    };
-
-    const currentWarning = getSubscriptionWarning();
-    const shouldShowWarning = currentWarning && dismissedWarning !== currentWarning.key;
-
-    // Reset dismissed warning when warning changes
-    useEffect(() => {
-        if (currentWarning && dismissedWarning && dismissedWarning !== currentWarning.key) {
-            setDismissedWarning(null);
-        }
-    }, [currentWarning?.key, dismissedWarning]);
-
+  //----------------------------------------------
     return (
-        <Sidebar className="modern-sidebar">
-            <SidebarContent>
-                {/* Logo 区域 */}
-                <SidebarGroup className="p-4">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-                            <img src="/ZhiLog%20Logo%20.jpg" alt="ZhiLog" className="w-6 h-6 rounded" />
+    <aside className={styles.sidebar}>
+      <div className={styles.topSection}>
+        <div className={styles.brand}>
+          <div className={styles.logoWrapper}>
+            <div className={styles.logoIcon}>ZL</div>
+          </div>
+          <span className={styles.brandText}>ZhiLog</span>
+        </div>
+        <div className={styles.toggleIcon}>
+          <div className={styles.toggleOuter}>
+            <svg
+              width="21"
+              height="21"
+              viewBox="0 0 21 21"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13.125 19.9062H7.875C3.12375 19.9062 1.09375 17.8762 1.09375 13.125V7.875C1.09375 3.12375 3.12375 1.09375 7.875 1.09375H13.125C17.8762 1.09375 19.9062 3.12375 19.9062 7.875V13.125C19.9062 17.8762 17.8762 19.9062 13.125 19.9062ZM7.875 2.40625C3.84125 2.40625 2.40625 3.84125 2.40625 7.875V13.125C2.40625 17.1588 3.84125 18.5938 7.875 18.5938H13.125C17.1588 18.5938 18.5938 17.1588 18.5938 13.125V7.875C18.5938 3.84125 17.1588 2.40625 13.125 2.40625H7.875Z"
+                fill="black"
+              />
+              <path
+                d="M7.875 19.9062C7.51625 19.9062 7.21875 19.6087 7.21875 19.25V1.75C7.21875 1.39125 7.51625 1.09375 7.875 1.09375C8.23375 1.09375 8.53125 1.39125 8.53125 1.75V19.25C8.53125 19.6087 8.23375 19.9062 7.875 19.9062Z"
+                fill="black"
+              />
+            </svg>
                         </div>
-                        <div>
-                            <h1 className="text-lg font-bold gradient-text">ZhiLog</h1>
-                            <p className="text-xs text-muted-foreground">Your AI Learning Companion</p>
                         </div>
                     </div>
-                </SidebarGroup>
 
-                {/* 主导航 */}
-                <SidebarGroup>
-                    <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Navigation
-                    </SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <Link
-                                            href={item.url}
-                                            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-sidebar-accent transition-colors duration-200"
-                                        >
-                                            <item.icon className="h-5 w-5" />
-                                            <span className="font-medium">{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                {/* 最近论文 */}
-                {user && allPapers.length > 0 && (
-                    <SidebarGroup>
-                        <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Recent Papers
-                        </SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                {allPapers.slice(0, 5).map((paper) => (
-                                    <SidebarMenuItem key={paper.id}>
-                                        <SidebarMenuButton asChild>
-                                            <Link
-                                                href={`/paper/${paper.id}`}
-                                                className="flex items-start gap-3 px-4 py-3 rounded-lg hover:bg-sidebar-accent transition-colors duration-200 group"
-                                            >
-                                                <div className="w-8 h-8 bg-gradient-to-br from-muted to-muted/80 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                    <FileText className="h-4 w-4 text-muted-foreground" />
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}># Space</div>
+        <div className={styles.navItemPrimary}>
+          <div className={styles.itemIcon}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.04004 11V7.66669"
+                stroke="#292D32"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9.66683 9.33331H6.3335"
+                stroke="#292D32"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M1.3335 8.67998V4.66665C1.3335 1.99998 2.00016 1.33331 4.66683 1.33331H5.66683C6.66683 1.33331 6.88683 1.62665 7.26683 2.13331L8.26683 3.46665C8.52016 3.79998 8.66683 3.99998 9.3335 3.99998H11.3335C14.0002 3.99998 14.6668 4.66665 14.6668 7.33331"
+                stroke="#292D32"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M14.6668 9.99335V11.3333C14.6668 14 14.0002 14.6667 11.3335 14.6667H4.66683C2.00016 14.6667 1.3335 14 1.3335 11.3333"
+                stroke="#292D32"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <div className={styles.primaryContent}>
+            <div className={styles.primaryTitle}>
+              <span className={styles.bold}>Zuo's Workspace</span>
+            </div>
+          </div>
+          <div className={styles.chevron}>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              aria-label="chevron"
+            >
+              <path
+                d="M9 6l6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium truncate group-hover:text-sidebar-foreground transition-colors">
-                                                        {paper.title}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground truncate">
-                                                        {paper.authors?.slice(0, 2).join(", ")}
-                                                    </p>
                                                 </div>
-                                            </Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                )}
-            </SidebarContent>
 
-            {/* 底部用户区域 */}
-            <SidebarFooter className="p-4 border-t border-sidebar-border/50">
-                <div className="flex items-center justify-between">
-                    {/* 用户信息 */}
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 rounded-lg hover:bg-sidebar-accent">
-                                <Avatar className="h-8 w-8">
-                                    {user?.picture ? (
-                                        <img
-                                            src={user.picture}
-                                            alt={user.name}
-                                            onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                                const avatar = e.currentTarget.closest('.h-8');
-                                                const userIcon = avatar?.querySelector('.user-icon');
-                                                if (userIcon) {
-                                                    userIcon.classList.remove('hidden');
-                                                }
-                                            }}
-                                        />
-                                    ) : null}
-                                    <User size={16} className="text-muted-foreground user-icon" />
-                                </Avatar>
-                                <div className="flex-1 text-left">
-                                    <p className="text-sm font-medium truncate">{user?.name || "User"}</p>
-                                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+        <div className={styles.subItems}>
+          <div className={styles.subItem}>
+            <div className={styles.subIcon}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M9.33331 1.33333C9.86375 1.32856 10.3744 1.53469 10.7528 1.90639C11.1312 2.27809 11.3465 2.7849 11.3513 3.31533C11.3561 3.84577 11.15 4.35637 10.7783 4.73482C10.4066 5.11327 9.89975 5.32856 9.36931 5.33333L9.22398 5.76867C9.56759 5.97734 9.86583 6.25284 10.101 6.57886C10.3363 6.90488 10.5036 7.27478 10.5933 7.66667H11.4726C11.6258 7.31573 11.8951 7.02824 12.2353 6.85252C12.5755 6.67681 12.9659 6.62359 13.3407 6.70182C13.7155 6.78005 14.052 6.98496 14.2935 7.28208C14.535 7.57921 14.6668 7.95043 14.6668 8.33333C14.6668 8.71623 14.535 9.08746 14.2935 9.38458C14.052 9.68171 13.7155 9.88661 13.3407 9.96484C12.9659 10.0431 12.5755 9.98986 12.2353 9.81414C11.8951 9.63843 11.6258 9.35093 11.4726 9H10.5926C10.482 9.48641 10.2514 9.93743 9.92198 10.312L10.3913 10.7813C10.7478 10.6415 11.1415 10.6286 11.5063 10.7449C11.8711 10.8612 12.1848 11.0995 12.3945 11.4199C12.6043 11.7403 12.6973 12.1231 12.658 12.504C12.6187 12.8848 12.4494 13.2406 12.1786 13.5113C11.9079 13.7821 11.5522 13.9514 11.1713 13.9907C10.7904 14.03 10.4076 13.937 10.0872 13.7272C9.76686 13.5175 9.52849 13.2038 9.4122 12.839C9.2959 12.4742 9.30877 12.0804 9.44865 11.724L8.82598 11.1013C8.45883 11.2551 8.06468 11.3339 7.66665 11.3333C7.20852 11.3338 6.75642 11.2289 6.34531 11.0267L3.76465 11.724C3.98686 12.1401 4.05483 12.6214 3.95655 13.0828C3.85827 13.5442 3.60006 13.956 3.22755 14.2454C2.85504 14.5348 2.39221 14.6833 1.92085 14.6645C1.44948 14.6457 0.999925 14.461 0.651614 13.1428C0.3033 12.8247 0.0786612 12.3936 0.0173828 11.9259C-0.0438955 11.4582 0.0621346 10.9838 0.316737 10.5867C0.57134 10.1895 0.958126 9.8952 1.40875 9.75563C1.85937 9.61607 2.34482 9.64029 2.77931 9.824L3.30865 9.188C2.89183 8.65975 2.66561 8.00623 2.66665 7.33333C2.66665 6.84333 2.78398 6.38133 2.99198 5.97267L2.41331 5.15675C2.07095 5.3283 1.67995 5.37672 1.30608 5.29387C0.932205 5.54427 0.598267 5.3352 0.360428 5.03508C0.122588 4.73495 -0.00464415 4.36207 0.000129602 3.97916C0.00490335 3.59625 0.141392 3.22666 0.38664 2.93255C0.631888 2.63844 0.970934 2.43776 1.34676 2.36426C1.72258 1.9575 2.11225 2.34891 2.45023 2.52895C2.78821 2.70898 3.05389 2.99991 3.20257 3.35281C3.35126 3.70571 3.37389 4.09905 3.26665 4.46667L3.84665 4.94933C4.44892 4.4878 5.20427 4.2728 5.95931 4.348L6.10465 3.912C5.77563 3.65608 5.5348 3.30376 5.4158 2.90428C5.29681 2.5048 5.30561 2.07812 5.44096 1.68388C5.57631 1.28964 5.83146 0.947547 6.17075 0.705406C6.51003 0.463264 6.91649 0.333179 7.33331 8.11082e-05ZM1.99998 10.6667C1.82317 10.6667 1.6536 10.737 1.52858 10.862C1.40355 10.987 1.33331 11.1566 1.33331 11.3334C1.33331 11.5102 1.40355 11.6798 1.52858 11.8048C1.6536 11.9298 1.82317 12.0001 1.99998 12.0001C2.17679 12.0001 2.34636 11.9298 2.47139 11.8048C2.59641 11.6798 2.66665 11.5102 2.66665 11.3334C2.66665 11.1566 2.59641 10.987 2.47139 10.862C2.34636 10.737 2.17679 10.6667 1.99998 10.6667ZM8.99998 10.6667C8.91158 10.6667 8.82679 10.7019 8.76428 10.7644C8.70177 10.8269 8.66665 10.9117 8.66665 11.0001C8.66665 11.0885 8.70177 11.1733 8.76428 11.2358C8.82679 11.2983 8.91158 11.3334 8.99998 11.3334C9.08839 11.3334 9.17317 11.2983 9.23568 11.2358C9.2982 11.1733 9.33331 11.0885 9.33331 11.0001C9.33331 10.9117 9.2982 10.8269 9.23568 10.7644C9.17317 10.7019 9.08839 10.6667 8.99998 10.6667ZM5.66665 5.33342C5.22462 5.33342 4.8007 5.50901 4.48814 5.82157C4.17558 6.13413 3.99998 6.55805 3.99998 7.00008C3.99998 7.44211 4.17558 7.86603 4.48814 8.17859C4.8007 8.49115 5.22462 8.66675 5.66665 8.66675C6.10868 8.66675 6.5326 8.49115 6.84516 8.17859C7.15772 7.86603 7.33331 7.44211 7.33331 7.00008C7.33331 6.55805 7.15772 6.13413 6.84516 5.82157C6.5326 5.50901 6.10868 5.33342 5.66665 5.33342ZM11 6.66675C10.9116 6.66675 10.8268 6.70187 10.7643 6.76438C10.7018 6.82689 10.6666 6.91168 10.6666 7.00008C10.6666 7.08849 10.7018 7.17327 10.7643 7.23578C10.8268 7.2983 10.9116 7.33342 11 7.33342C11.0884 7.33342 11.1732 7.2983 11.2357 7.23578C11.2982 7.17327 11.3333 7.08849 11.3333 7.00008C11.3333 6.91168 11.2982 6.82689 11.2357 6.76438C11.1732 6.70187 11.0884 6.66675 11 6.66675ZM1.66665 3.33341C1.57824 3.33341 1.49346 3.36853 1.43095 3.43105C1.36843 3.49356 1.33331 3.57834 1.33331 3.66675C1.33331 3.75515 1.36843 3.83994 1.43095 3.90245C1.49346 3.96496 1.57824 4.00008 1.66665 4.00008C1.75505 4.00008 1.83984 3.96496 1.90235 3.90245C1.96486 3.83994 1.99998 3.75515 1.99998 3.66675C1.99998 3.57834 1.96486 3.49356 1.90235 3.43105C1.83984 3.36853 1.75505 3.33341 1.66665 3.33341ZM7.33331 1.33341C7.1565 1.33341 6.98693 1.40365 6.86191 1.52868C6.73689 1.6537 6.66665 1.82327 6.66665 2.00008C6.66665 2.17689 6.73689 2.34646 6.86191 2.47149C6.98693 2.59651 7.1565 2.66675 7.33331 2.66675C7.51013 2.66675 7.67969 2.59651 7.80472 2.47149C7.92974 2.34646 7.99998 2.17689 7.99998 2.00008C7.99998 1.82327 7.92974 1.6537 7.80472 1.52868C7.67969 1.40365 7.51013 1.33341 7.33331 1.33341Z"
+                  fill="#79747E"
+                />
+              </svg>
+            </div>
+            <div className={styles.subText}>Canvas</div>
                                 </div>
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="modern-card w-64" align="start">
-                            <div className="flex items-center gap-3 p-2">
-                                <Avatar className="h-10 w-10">
-                                    {user?.picture ? (
-                                        <img
-                                            src={user.picture}
-                                            alt={user.name}
-                                            onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                                const avatar = e.currentTarget.closest('.h-10');
-                                                const userIcon = avatar?.querySelector('.user-icon-large');
-                                                if (userIcon) {
-                                                    userIcon.classList.remove('hidden');
-                                                }
-                                            }}
-                                        />
-                                    ) : null}
-                                    <User size={24} className="text-muted-foreground user-icon-large" />
-                                </Avatar>
-                                <div>
-                                    <p className="font-medium">{user?.name || "User"}</p>
-                                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+          <div className={styles.subItem}>
+            <div className={styles.subIcon}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M3.80191 13.3334C3.52858 12.4487 3.10858 10.378 4.24924 8.32404C5.49391 6.08404 5.21591 3.85604 4.91591 2.66671H12.1979C12.4712 3.55137 12.8912 5.62204 11.7506 7.67604C10.5059 9.91604 10.7839 12.144 11.0839 13.3334H3.80191ZM3.08391 7.67604C1.65258 10.252 2.23391 12.81 2.55058 13.7967C2.72791 14.354 3.24524 14.6667 3.76658 14.6667H11.4866C12.2166 14.6667 12.6559 13.9434 12.4652 13.3227C12.1906 12.428 11.7806 10.368 12.9159 8.32404C14.3472 5.74804 13.7659 3.19004 13.4492 2.20331C13.2719 1.64604 12.7546 1.33331 12.2332 1.33331H4.51324C3.78324 1.33331 3.34324 2.05671 3.53391 2.67737C3.80858 3.57198 4.21924 5.63198 3.08391 7.67604ZM5.99991 6.00004C5.99991 5.82323 6.07015 5.65366 6.19517 5.52864C6.3202 5.40361 6.48977 5.33337 6.66658 5.33337H10.6666C10.8434 5.33337 11.013 5.40361 11.138 5.52864C11.263 5.65366 11.3332 5.82323 11.3332 6.00004C11.3332 6.17685 11.263 6.34636 11.138 6.47144C11.013 6.59647 10.8434 6.66671 10.6666 6.66671H6.66658C6.48977 6.66671 6.3202 6.59647 6.19517 6.47144C6.07015 6.34636 5.99991 6.17685 5.99991 6.00004ZM5.99991 8.00004C5.8231 8.00004 5.65353 8.07022 5.52851 8.19524C5.40348 8.32033 5.33324 8.48983 5.33324 8.66671C5.33324 8.84352 5.40348 9.01309 5.52851 9.13811C5.65353 9.26314 5.8231 9.33331 5.99991 9.33331H7.99991C8.17672 9.33331 8.34629 9.26307 8.47131 9.13805C8.59634 9.01303 8.66658 8.84352 8.66658 8.66671C8.66658 8.48983 8.59634 8.32027 8.47131 8.19524C8.34629 8.07022 8.17672 8.00004 7.99991 8.00004H5.99991Z"
+                  fill="#79747E"
+                />
+              </svg>
+            </div>
+            <div className={styles.subText}>Decentralized is not…</div>
+          </div>
                                 </div>
                             </div>
-                            <div className="border-t border-border/50 mt-2 pt-2">
-                                <Button
-                                    variant="ghost"
-                                    onClick={handleLogout}
-                                    className="w-full justify-start text-destructive hover:text-destructive"
-                                >
-                                    <LogOut className="h-4 w-4 mr-2" />
-                                    Sign Out
-                                </Button>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
 
-                    {/* 主题切换 */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={toggleDarkMode}
-                        className="h-8 w-8 rounded-lg hover:bg-sidebar-accent"
-                    >
-                        {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    </Button>
+      <div className={styles.section}>
+        <div className={styles.sectionTitle}># Community</div>
+        <div
+          className={styles.navItemPrimary}
+          style={{ background: "transparent" }}
+        >
+          <div className={styles.itemIcon}>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M2 2.66665C2 2.31303 2.14048 1.97389 2.39052 1.72384C2.64057 1.47379 2.97971 1.33331 3.33333 1.33331H4.66667C4.90933 1.33331 5.13733 1.39798 5.33333 1.51198C5.5359 1.39465 5.76591 1.33301 6 1.33331H7.33333C7.818 1.33331 8.24267 1.59198 8.476 1.97931C8.616 1.86731 8.78 1.78198 8.964 1.73265L10.252 1.38798C10.4211 1.34261 10.5976 1.331 10.7712 1.35382C10.9448 1.37664 11.1123 1.43345 11.2639 1.52098C11.4156 1.60852 11.5486 1.72508 11.6552 1.864C11.7618 2.00293 11.84 2.16149 11.8853 2.33065L14.6453 12.634C14.6907 12.8031 14.7023 12.9795 14.6795 13.1532C14.6567 13.3268 14.5999 13.4942 14.5123 13.6459C14.4248 13.7976 14.3082 13.9305 14.1693 14.0372C14.0304 14.1438 13.8718 14.222 13.7027 14.2673L12.4147 14.612C12.2455 14.6574 12.0691 14.669 11.8955 14.6461C11.7218 14.6233 11.5544 14.5665 11.4027 14.479C11.2511 14.3914 11.1181 14.2749 11.0115 14.136C10.9049 13.997 10.8267 13.8385 10.7813 13.6693L8.66667 5.77531V13.3333C8.66667 13.6869 8.52619 14.0261 8.27614 14.2761C8.02609 14.5262 7.68696 14.6666 7.33333 14.6666H6C5.76591 14.667 5.5359 14.6053 5.33333 14.488C5.13077 14.6053 4.90076 14.667 4.66667 14.6666H3.33333C2.97971 14.6666 2.64057 14.5262 2.39052 14.2761C2.14048 14.0261 2 13.6869 2 13.3333V2.66665ZM3.33333 2.66665H4.66667V13.3333H3.33333V2.66665ZM7.33333 13.3333H6V2.66665H7.33333V13.3333ZM9.30933 3.02065L10.5967 2.67598L13.358 12.9793L12.07 13.324L9.30933 3.02065Z"
+                fill="#292D32"
+              />
+            </svg>
+          </div>
+          <div className={styles.primaryContent}>
+            <div className={styles.primaryTitle}>
+              <span className={styles.bold}>Zhi-Hub</span> Public
+            </div>
+          </div>
+        </div>
+                            </div>
+
+      <div className={styles.quickAction}>
+        <div className={styles.quickTitle}>Quick Action</div>
+        <div className={styles.actionItem}>
+          <div className={styles.actionLeft}>
+            <div className={styles.actionIcon}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8.00016 1.33337C4.32016 1.33337 1.3335 4.32004 1.3335 8.00004C1.3335 11.68 4.32016 14.6667 8.00016 14.6667C11.6802 14.6667 14.6668 11.68 14.6668 8.00004C14.6668 4.32004 11.6802 1.33337 8.00016 1.33337ZM7.3335 11.3334V10H8.66683V11.3334H7.3335ZM7.3335 4.66671V8.66671H8.66683V4.66671H7.3335Z"
+                  fill="#79747E"
+                />
+              </svg>
+            </div>
+            <div className={styles.actionText}>Help</div>
+          </div>
+          <div className={styles.dot}>•</div>
+        </div>
+        <div className={styles.actionItem}>
+          <div className={styles.actionLeft}>
+            <div className={styles.actionIcon}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M10.2067 14.02C10.14 14.4733 9.72666 14.8333 9.23333 14.8333H6.76666C6.27333 14.8333 5.85999 14.4733 5.79999 13.9867L5.61999 12.7267C5.43999 12.6333 5.26666 12.5333 5.09333 12.42L3.89333 12.9C3.42666 13.0733 2.91333 12.88 2.68666 12.4667L1.46666 10.3533C1.23333 9.91334 1.33333 9.39334 1.70666 9.10001L2.72666 8.30667C2.71999 8.20667 2.71333 8.10667 2.71333 8.00001C2.71333 7.90001 2.71999 7.79334 2.72666 7.69334L1.71333 6.90001C1.31999 6.60001 1.21999 6.06001 1.46666 5.64667L2.69999 3.52001C2.92666 3.10667 3.43999 2.92001 3.89333 3.10001L5.09999 3.58667C5.27333 3.47334 5.44666 3.37334 5.61999 3.28001L5.79999 2.00667C5.85999 1.54001 6.27333 1.17334 6.75999 1.17334H9.22666C9.71999 1.17334 10.1333 1.53334 10.1933 2.02001L10.3733 3.28001C10.5533 3.37334 10.7267 3.47334 10.9 3.58667L12.1 3.10667C12.5733 2.93334 13.0867 3.12667 13.3133 3.54001L14.54 5.66001C14.78 6.10001 14.6733 6.62001 14.3 6.91334L13.2867 7.70667C13.2933 7.80667 13.3 7.90667 13.3 8.01334C13.3 8.12001 13.2933 8.22001 13.2867 8.32001L14.3 9.11334C14.6733 9.41334 14.78 9.93334 14.5467 10.3533L13.3067 12.5C13.08 12.9133 12.5667 13.1 12.1067 12.92L10.9067 12.44C10.7333 12.5533 10.56 12.6533 10.3867 12.7467L10.2067 14.02ZM7.07999 13.5H8.91999L9.16666 11.8L9.51999 11.6533C9.81333 11.5333 10.1067 11.36 10.4133 11.1333L10.7133 10.9067L12.3 11.5467L13.22 9.94667L11.8667 8.89334L11.9133 8.52001L11.9154 8.50206C11.9347 8.33514 11.9533 8.17378 11.9533 8.00001C11.9533 7.82001 11.9333 7.64667 11.9133 7.48001L11.8667 7.10667L13.22 6.05334L12.2933 4.45334L10.7 5.09334L10.4 4.86001C10.12 4.64667 9.81999 4.47334 9.51333 4.34667L9.16666 4.20001L8.91999 2.50001H7.07999L6.83333 4.20001L6.47999 4.34001C6.18666 4.46667 5.89333 4.63334 5.58666 4.86667L5.28666 5.08667L3.69999 4.45334L2.77333 6.04667L4.12666 7.10001L4.07999 7.47334C4.05999 7.64667 4.03999 7.82667 4.03999 8.00001C4.03999 8.17334 4.05333 8.35334 4.07999 8.52001L4.12666 8.89334L2.77333 9.94667L3.69333 11.5467L5.28666 10.9067L5.58666 11.14C5.87333 11.36 6.15999 11.5267 6.47333 11.6533L6.82666 11.8L7.07999 13.5ZM10.3333 8.00001C10.3333 9.28867 9.28866 10.3333 7.99999 10.3333C6.71133 10.3333 5.66666 9.28867 5.66666 8.00001C5.66666 6.71134 6.71133 5.66667 7.99999 5.66667C9.28866 5.66667 10.3333 6.71134 10.3333 8.00001Z"
+                  fill="#79747E"
+                />
+              </svg>
+            </div>
+            <div className={styles.actionText}>Settings</div>
+          </div>
+          <div className={styles.dot}>•</div>
+        </div>
                 </div>
 
-                {/* 订阅警告 */}
-                {subscription && !subscriptionLoading && (
-                    <>
-                        {isStorageAtLimit(subscription) && (
-                            <Alert className="mt-3 modern-card border-destructive/20">
-                                <AlertTriangle className="h-4 w-4 text-destructive" />
-                                <AlertDescription className="text-xs">
-                                    Storage limit reached. Please upgrade or delete some papers.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                        {isPaperUploadAtLimit(subscription) && (
-                            <Alert className="mt-3 modern-card border-destructive/20">
-                                <AlertTriangle className="h-4 w-4 text-destructive" />
-                                <AlertDescription className="text-xs">
-                                    Monthly upload limit reached. Please upgrade your plan.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                        {isStorageNearLimit(subscription) && !dismissedWarning?.includes('storage') && (
-                            <Alert className="mt-3 modern-card border-yellow-500/20">
-                                <Clock className="h-4 w-4 text-yellow-500" />
-                                <AlertDescription className="text-xs">
-                                    Storage nearly full. Consider upgrading.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                        {isPaperUploadNearLimit(subscription) && !dismissedWarning?.includes('upload') && (
-                            <Alert className="mt-3 modern-card border-yellow-500/20">
-                                <Clock className="h-4 w-4 text-yellow-500" />
-                                <AlertDescription className="text-xs">
-                                    Monthly upload limit approaching. Consider upgrading.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-                    </>
-                )}
-            </SidebarFooter>
-        </Sidebar>
+      <div className={styles.bottomProfile}>
+        <div className={styles.avatarWrapper}>
+          <div className={styles.avatar}>ZZ</div>
+        </div>
+        <div className={styles.userInfo}>
+          <div className={styles.userName}>Zonglin Zuo</div>
+          <div className={styles.badge}>Pro</div>
+        </div>
+      </div>
+    </aside>
     );
 }
