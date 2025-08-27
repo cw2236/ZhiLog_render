@@ -1,3 +1,35 @@
+/* Nav */
+#nav {
+  height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* Global */
+* {
+  box-sizing: border-box;
+  user-select: none;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#Dashboard {
+  display: grid;
+  grid-template-columns: 264px auto;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Geist Sans", sans-serif;
+}
+
+#Dashboard main {
+  display: grid;
+  grid-template-columns: 65% 35%;
+}
+
 /* workspace */
 .workSpace {
   position: relative;
@@ -7,7 +39,6 @@
   padding: 20px;
   color: #333;
   height: 100vh;
-  flex: 1;
 }
 
 .user {
@@ -137,8 +168,8 @@
   flex-direction: column;
   gap: 30px;
   overflow-y: auto;
-  flex: 1;
 }
+/* workspace */
 
 /* message */
 .message {
@@ -150,22 +181,11 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.avatarIcon {
+.avatar img {
   width: 32px;
   height: 32px;
-  background: #4f46e5;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 12px;
 }
 
 .messageContent {
@@ -252,3 +272,4 @@
   border-radius: 1234px;
   border: none;
 }
+/* message */
