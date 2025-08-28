@@ -101,6 +101,12 @@ async def get_paper_file(
     # 如果内存中没有，返回404
     raise HTTPException(status_code=404, detail="Paper not found")
 
+# 健康检查端点
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint for Render"""
+    return {"status": "healthy", "message": "ZhiLog Backend is running"}
+
 # 挂载 jobs/uploads 目录为 /static/pdf
 pdf_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../jobs/uploads'))
 app.mount("/static/pdf", StaticFiles(directory=pdf_dir), name="pdf")
