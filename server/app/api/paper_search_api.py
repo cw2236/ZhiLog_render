@@ -2,7 +2,8 @@ import logging
 import uuid
 from typing import Optional, cast
 
-from app.auth.dependencies import get_current_user, get_db, get_required_user
+from app.auth.dependencies import get_current_user, get_required_user
+from app.database.database import get_db
 from app.database.crud.hypothesis_crud import hypothesis_crud
 from app.database.crud.paper_crud import PaperUpdate, paper_crud
 from app.database.models import JobStatus

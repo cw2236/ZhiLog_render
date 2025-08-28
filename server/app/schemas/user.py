@@ -20,12 +20,6 @@ class UserCreate(UserBase):
     password: str
 
 
-# Schema for creating a user from OAuth
-class UserCreateWithProvider(UserBase):
-    auth_provider: str
-    provider_user_id: str
-
-
 # Schema for updating a user
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
@@ -39,7 +33,6 @@ class UserUpdate(BaseModel):
 # Schema for returning a user
 class User(UserBase):
     id: UUID
-    auth_provider: str
     created_at: datetime
     updated_at: datetime
 
@@ -80,15 +73,6 @@ class Token(BaseModel):
 class TokenPayload(BaseModel):
     sub: str  # user_id
     exp: int  # expiration time
-
-
-# OAuth response
-class OAuthUserInfo(BaseModel):
-    id: str
-    email: EmailStr
-    name: Optional[str] = None
-    picture: Optional[str] = None
-    locale: Optional[str] = None
 
 
 # Current user with scopes/permissions

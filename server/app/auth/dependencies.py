@@ -1,19 +1,21 @@
 import logging
 import uuid
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Dict
+from datetime import datetime, timedelta
 
-from app.database.crud.subscription_crud import subscription_crud
-from app.database.crud.user_crud import user as user_crud
-from app.database.database import get_db
 from app.schemas.user import CurrentUser
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import APIKeyHeader
-from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
 # Session cookie name
 SESSION_COOKIE_NAME = "session"
+
+# 内存存储用户会话 (在生产环境中应该使用Redis)
+# 这是一个简单的内存存储，用于测试目的
+user_sessions: Dict[str, CurrentUser] = {}
+session_tokens: Dict[str, str] = {}  # token -> user_id
 
 # Setup header auth
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
@@ -21,13 +23,11 @@ api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 async def get_current_user(
     request: Request,
-    db: Session = Depends(get_db),
     authorization: str = Depends(api_key_header),
 ) -> Optional[CurrentUser]:
     """
     Get the current user from session token in cookie or Authorization header.
-
-    This is a FastAPI dependency that can be used in route functions.
+    使用内存存储和cookies，不需要数据库。
     """
     token = None
 
@@ -42,33 +42,16 @@ async def get_current_user(
     if not token:
         return None
 
-    # Get session from database
-    db_session = user_crud.get_by_token(db=db, token=token)
-    if not db_session:
+    # 从内存存储中获取用户
+    user_id = session_tokens.get(token)
+    if not user_id:
         return None
 
-    # Get user from session
-    db_user = user_crud.get(db=db, id=db_session.user_id)
-    if not db_user or not db_user.is_active:
+    user = user_sessions.get(user_id)
+    if not user:
         return None
 
-    if not db_user.id:
-        logger.error("User ID is missing in the database record.")
-        return None
-
-    id_as_uuid = uuid.UUID(str(db_user.id))
-
-    is_user_active = subscription_crud.is_user_active(db, db_user)
-
-    # Return CurrentUser model
-    return CurrentUser(
-        id=id_as_uuid,
-        email=str(db_user.email),
-        name=str(db_user.name),
-        is_admin=bool(db_user.is_admin),
-        picture=str(db_user.picture),
-        is_active=is_user_active,
-    )
+    return user
 
 
 async def get_required_user(
@@ -100,3 +83,37 @@ async def get_admin_user(
             detail="Not enough permissions",
         )
     return current_user
+
+
+# 辅助函数：创建临时用户
+def create_temp_user() -> CurrentUser:
+    """创建一个临时用户用于测试"""
+    user_id = str(uuid.uuid4())
+    user = CurrentUser(
+        id=uuid.UUID(user_id),
+        email="temp@example.com",
+        name="Temporary User",
+        is_admin=False,
+        picture=None,
+        is_active=True,
+    )
+    # 使用字符串形式的user_id作为键
+    user_sessions[user_id] = user
+    return user
+
+
+# 辅助函数：创建会话
+def create_session(user: CurrentUser) -> str:
+    """为用户创建会话token"""
+    token = str(uuid.uuid4())
+    # 使用字符串形式的user.id作为值
+    session_tokens[token] = str(user.id)
+    return token  # 返回token
+
+
+# 辅助函数：清理过期会话
+def cleanup_expired_sessions():
+    """清理过期的会话（可以定期调用）"""
+    # 这里可以添加会话过期逻辑
+    # 为了简单起见，暂时不实现
+    pass

@@ -13,7 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth";
 import { useSubscription, getStorageUsagePercentage, isStorageNearLimit, isStorageAtLimit, formatFileSize } from "@/hooks/useSubscription";
-import { FileText, Upload, Search, AlertTriangle, AlertCircle, HardDrive } from "lucide-react";
+import { FileText, Upload, Search, AlertTriangle, AlertCircle, HardDrive, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { SearchResults, PaperResult } from "@/lib/schema";
 import { toast } from "sonner";
@@ -29,7 +29,7 @@ export default function PapersPage() {
     const [searching, setSearching] = useState<boolean>(false);
     const searchInputRef = useRef<HTMLInputElement | null>(null);
     const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, autoLogin } = useAuth();
     const { subscription, loading: subscriptionLoading } = useSubscription();
 
     useEffect(() => {
@@ -62,10 +62,40 @@ export default function PapersPage() {
 
     useEffect(() => {
         if (!authLoading && !user) {
+            // 如果没有用户，显示自动登录提示而不是重定向
+            // 移除登录重定向，因为不需要认证
             // Redirect to login if user is not authenticated
-            window.location.href = `/login`;
+            // window.location.href = `/login`;
         }
     }, [authLoading, user]);
+
+    // 移除自动登录提示，静默创建用户
+    // if (!authLoading && !user) {
+    // 	return (
+    // 		<div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-4">
+    // 			<div className="text-center max-w-md">
+    // 			<div className="mx-auto mb-6 rounded-full bg-blue-100 p-3 text-blue-600">
+    // 				<UserPlus className="h-12 w-12" />
+    // 			</div>
+    // 			<h2 className="text-2xl font-bold mb-4">Access Your Papers</h2>
+    // 			<p className="text-muted-foreground mb-6">
+    // 				Create a temporary account to view and manage your papers.
+    // 			</p>
+    // 			<Button onClick={autoLogin} size="lg" className="w-full">
+    // 				<UserPlus className="h-4 w-4 mr-2" />
+    // 				Start Testing
+    // 			</Button>
+    // 		</div>
+    // 	</div>
+    // 	);
+    // }
+
+    // 如果没有用户，自动创建一个临时用户（静默创建）
+    if (!authLoading && !user) {
+        useEffect(() => {
+            autoLogin();
+        }, []);
+    }
 
     // Restore focus to search input after search results update
     useEffect(() => {

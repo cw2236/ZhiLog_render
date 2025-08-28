@@ -19,9 +19,11 @@ from app.api.webhook_api import webhook_router
 from app.api.chat_history_api import chat_history_router
 from app.database.admin import setup_admin
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.requests import Request
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -57,7 +59,7 @@ app.include_router(auth_router, prefix="/api/auth")  # Auth routes
 app.include_router(paper_router, prefix="/api/paper")
 app.include_router(conversation_router, prefix="/api/conversation")
 app.include_router(message_router, prefix="/api/message")
-app.include_router(highlight_router, prefix="/api/highlight")
+app.include_router(highlight_router, prefix="/api/highlight")  # 修复：使用/api/highlight前缀
 app.include_router(annotation_router, prefix="/api/annotation")
 app.include_router(paper_search_router, prefix="/api/search/global")
 app.include_router(search_router, prefix="/api/search/local")
@@ -69,6 +71,35 @@ app.include_router(
 )  # Subscription routes
 app.include_router(webhook_router, prefix="/api/webhooks")  # Webhook routes
 app.include_router(chat_history_router, prefix="/api/chat-history", tags=["chat-history"])
+
+# 添加文件下载端点
+@app.get("/api/paper/{paper_id}/file")
+async def get_paper_file(
+    paper_id: str,
+    request: Request,
+):
+    """
+    Get the PDF file for a paper
+    """
+    # 首先尝试从内存存储中获取论文
+    from app.api.paper_upload_api import in_memory_papers
+    
+    if paper_id in in_memory_papers:
+        paper_data = in_memory_papers[paper_id]
+        
+        # 检查本地文件路径
+        local_file_path = paper_data.get("local_file_path")
+        if local_file_path and os.path.exists(local_file_path):
+            return FileResponse(
+                local_file_path,
+                media_type="application/pdf",
+                filename=paper_data.get("filename", "paper.pdf")
+            )
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
+    
+    # 如果内存中没有，返回404
+    raise HTTPException(status_code=404, detail="Paper not found")
 
 # 挂载 jobs/uploads 目录为 /static/pdf
 pdf_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../jobs/uploads'))

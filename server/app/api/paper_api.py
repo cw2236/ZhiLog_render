@@ -22,10 +22,11 @@ from app.llm.schemas import ResponseCitation
 from app.schemas.user import CurrentUser
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.services.storage import storage_service
+import os
 
 load_dotenv()
 
@@ -365,6 +366,56 @@ async def get_mru_paper_conversation(
     return JSONResponse(status_code=200, content=conversation_data)
 
 
+# 首先定义具体的路由
+@paper_router.get("/{paper_id}/file")
+async def get_paper_file(
+    paper_id: str,
+    current_user: CurrentUser = Depends(get_required_user),
+):
+    """
+    Get the PDF file for a paper
+    """
+    # 首先尝试从内存存储中获取论文
+    from app.api.paper_upload_api import in_memory_papers
+    
+    if paper_id in in_memory_papers:
+        paper_data = in_memory_papers[paper_id]
+        
+        # 检查用户权限
+        if paper_data.get("user_id") != str(current_user.id):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # 检查本地文件路径
+        local_file_path = paper_data.get("local_file_path")
+        if local_file_path and os.path.exists(local_file_path):
+            return FileResponse(
+                local_file_path,
+                media_type="application/pdf",
+                filename=paper_data.get("filename", "paper.pdf")
+            )
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
+    
+    # 如果内存中没有，尝试从数据库获取（向后兼容）
+    try:
+        from app.database.crud.paper_crud import paper_crud
+        from app.database.database import get_db
+        from app.services.storage import storage_service
+        
+        paper = paper_crud.get(db, id=paper_id, user=current_user)
+        if not paper:
+            raise HTTPException(status_code=404, detail="Paper not found")
+        
+        # 使用存储服务获取文件
+        file_url = await storage_service.get_file_url(paper.file_url)
+        return FileResponse(file_url, media_type="application/pdf")
+        
+    except Exception as e:
+        logger.error(f"Error getting paper file: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving file")
+
+
+# 然后定义通用路由
 @paper_router.get("")
 async def get_pdf(
     request: Request,
@@ -375,36 +426,73 @@ async def get_pdf(
     """
     Get a document by ID
     """
-    # Fetch the document from the database
-    paper = paper_crud.get(db, id=id, user=current_user, update_last_accessed=True)
-
-    if not paper:
-        return JSONResponse(status_code=404, content={"message": "Document not found"})
-
-    paper_data = paper.to_dict()
-
-    try:
+    # 首先尝试从内存存储中获取论文
+    from app.api.paper_upload_api import in_memory_papers
+    
+    if id in in_memory_papers:
+        paper_data = in_memory_papers[id].copy()
+        
+        # 检查用户权限
+        if paper_data.get("user_id") != str(current_user.id):
+            return JSONResponse(status_code=403, content={"message": "Access denied"})
+        
+        # 添加一些默认值以匹配数据库格式
+        paper_data["id"] = id
+        paper_data["status"] = "completed"
+        paper_data["created_at"] = paper_data.get("created_at", "")
+        paper_data["updated_at"] = paper_data.get("updated_at", "")
+        paper_data["summary_citations"] = []
+        paper_data["summary"] = paper_data.get("abstract", "")
+        
         # 使用 storage_service 获取文件 URL
-        file_url = await storage_service.get_file_url(paper.file_url)
-        paper_data["file_url"] = file_url
-
-        paper_data["summary_citations"] = [  # type: ignore
-            ResponseCitation.model_validate(citation).model_dump()
-            for citation in paper.summary_citations or []
-        ]
-
-        paper_data["summary"] = paper_crud.get_summary_replace_image_placeholders(
-            db, paper_id=id, current_user=current_user
-        )
-
-        # Return the file URL
+        try:
+            # 对于内存存储的论文，使用本地文件端点
+            if "local_file_path" in paper_data:
+                paper_data["file_url"] = f"/api/paper/upload/download/{id}"
+            else:
+                file_url = await storage_service.get_file_url(paper_data.get("file_url", ""))
+                paper_data["file_url"] = file_url
+        except Exception as e:
+            logger.warning(f"Error getting file URL from storage service: {e}")
+            # 如果存储服务失败，使用内存中的URL
+            paper_data["file_url"] = paper_data.get("file_url", "")
+        
         return JSONResponse(status_code=200, content=paper_data)
+    
+    # 如果内存中没有，尝试从数据库获取（向后兼容）
+    try:
+        paper = paper_crud.get(db, id=id, user=current_user, update_last_accessed=True)
+
+        if not paper:
+            return JSONResponse(status_code=404, content={"message": "Document not found"})
+
+        paper_data = paper.to_dict()
+
+        try:
+            # 使用 storage_service 获取文件 URL
+            file_url = await storage_service.get_file_url(paper.file_url)
+            paper_data["file_url"] = file_url
+
+            paper_data["summary_citations"] = [  # type: ignore
+                ResponseCitation.model_validate(citation).model_dump()
+                for citation in paper.summary_citations or []
+            ]
+
+            paper_data["summary"] = paper_crud.get_summary_replace_image_placeholders(
+                db, paper_id=id, current_user=current_user
+            )
+
+            # Return the file URL
+            return JSONResponse(status_code=200, content=paper_data)
+        except Exception as e:
+            logger.error(f"Error getting paper file URL: {str(e)}")
+            return JSONResponse(
+                status_code=500,
+                content={"message": "Error getting paper file"}
+            )
     except Exception as e:
-        logger.error(f"Error getting paper file URL: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"message": "Error getting paper file"}
-        )
+        logger.error(f"Error getting paper from database: {e}")
+        return JSONResponse(status_code=500, content={"message": "Error retrieving paper"})
 
 
 @paper_router.post("/share")
@@ -585,20 +673,43 @@ async def chat_with_paper(
         if not message:
             raise HTTPException(status_code=400, detail="Message is required")
 
-        # 获取论文
-        paper = paper_crud.get(db=db, id=paper_id, user=current_user)
-        if not paper:
-            raise HTTPException(status_code=404, detail="Paper not found")
+        # 首先尝试从内存存储中获取论文
+        from app.api.paper_upload_api import in_memory_papers
+        
+        paper_data = None
+        if paper_id in in_memory_papers:
+            paper_data = in_memory_papers[paper_id]
+            
+            # 检查用户权限
+            if paper_data.get("user_id") != str(current_user.id):
+                raise HTTPException(status_code=403, detail="Access denied")
+        
+        # 如果内存中没有，尝试从数据库获取（向后兼容）
+        if not paper_data:
+            try:
+                paper = paper_crud.get(db=db, id=paper_id, user=current_user)
+                if not paper:
+                    raise HTTPException(status_code=404, detail="Paper not found")
+                
+                # 将数据库论文转换为字典格式
+                paper_data = paper.to_dict()
+            except Exception as e:
+                logger.error(f"Error getting paper from database: {e}")
+                raise HTTPException(status_code=404, detail="Paper not found")
 
         # 根据 context_type 决定使用什么作为上下文
         if context_type == "full_text":
             # 使用论文全文作为上下文
-            if not paper.raw_content:
+            if paper_data.get("raw_content"):
+                context = paper_data["raw_content"]
+            elif paper_data.get("abstract"):
+                # 如果没有全文，使用摘要作为上下文
+                context = paper_data["abstract"]
+            else:
                 return JSONResponse(
                     status_code=200,
                     content={"message": "抱歉，这篇论文的文本内容还未提取。请稍后再试。"}
                 )
-            context = paper.raw_content
         else:
             # 使用选中的文本作为上下文
             context = body.get("context", "")
@@ -626,30 +737,4 @@ Please provide a clear and concise answer based on the paper content."""
         return JSONResponse(
             status_code=500,
             content={"message": f"处理请求时遇到错误：{str(e)}"}
-        )
-
-
-@paper_router.get("/{paper_id}/file")
-async def get_paper_file(
-    paper_id: str,
-    db: Session = Depends(get_db),
-    current_user: CurrentUser = Depends(get_required_user),
-) -> JSONResponse:
-    """Get the paper file URL"""
-    paper = paper_crud.get(db=db, id=paper_id, user=current_user)
-    if not paper:
-        return JSONResponse(status_code=404, content={"message": "Paper not found"})
-
-    try:
-        # 使用 storage_service 获取文件 URL
-        file_url = await storage_service.get_file_url(paper.file_url)
-        return JSONResponse(
-            status_code=200,
-            content={"file_url": file_url}
-        )
-    except Exception as e:
-        logger.error(f"Error getting paper file URL: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"message": "Error getting paper file"}
         )

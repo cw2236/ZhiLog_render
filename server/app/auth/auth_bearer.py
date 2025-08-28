@@ -4,9 +4,10 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 
-from ..database.session import get_db
+from ..database.database import get_db
 from ..database.models import User, Session as DbSession
 from .auth_types import CurrentUser
+from .dependencies import get_current_user
 
 security = HTTPBearer(auto_error=False)
 
@@ -16,6 +17,15 @@ async def get_required_user(
     auth: Optional[HTTPAuthorizationCredentials] = Depends(security)
 ) -> CurrentUser:
     """获取当前登录用户，如果未登录则抛出异常"""
+    # 首先尝试从内存存储获取用户
+    try:
+        current_user = await get_current_user(request, auth)
+        if current_user:
+            return current_user
+    except Exception as e:
+        # 如果内存存储失败，继续尝试数据库方式
+        pass
+    
     # 尝试从 cookie 获取 token
     session_token = None
     if not auth:

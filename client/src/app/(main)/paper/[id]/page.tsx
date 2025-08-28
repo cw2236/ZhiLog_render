@@ -37,6 +37,7 @@ import {
     Route,
     User,
     ChartBar,
+    UserPlus,
 } from 'lucide-react';
 
 import { Textarea } from '@/components/ui/textarea';
@@ -139,7 +140,7 @@ let pendingBubbleThread: { text: string } | null = null;
 export default function PaperView() {
     const params = useParams();
     const id = params.id as string;
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, autoLogin } = useAuth();
     const { subscription, refetch: refetchSubscription } = useSubscription();
     const [paperData, setPaperData] = useState<PaperData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -285,8 +286,10 @@ export default function PaperView() {
 
     useEffect(() => {
         if (!authLoading && !user) {
+            // 如果没有用户，显示自动登录提示而不是重定向
+            // 移除登录重定向，因为不需要认证
             // Redirect to login if user is not authenticated
-            window.location.href = `/login`;
+            // window.location.href = `/login`;
         }
     }, [authLoading, user]);
 
@@ -1341,6 +1344,13 @@ export default function PaperView() {
     if (loading) return <div>Loading paper data...</div>;
 
     if (!paperData) return <div>Paper not found</div>;
+
+    // 如果没有用户，自动创建一个临时用户（静默创建）
+    if (!authLoading && !user) {
+        useEffect(() => {
+            autoLogin();
+        }, []);
+    }
 
     return (
         <div className="flex flex-row w-full h-[calc(100vh-64px)]">

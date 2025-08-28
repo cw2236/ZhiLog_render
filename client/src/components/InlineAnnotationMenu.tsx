@@ -6,7 +6,7 @@ import { getSelectionOffsets } from "./utils/PdfTextUtils";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { CommandShortcut, localizeCommandToOS } from "./ui/command";
-import { Copy, Highlighter, MessageCircle, Minus, NotebookText, X } from "lucide-react";
+import { Copy, Highlighter, MessageCircle, Minus, X } from "lucide-react";
 
 interface InlineAnnotationMenuProps {
     selectedText: string;
@@ -21,7 +21,6 @@ interface InlineAnnotationMenuProps {
     addHighlight: (selectedText: string, startOffset?: number, endOffset?: number) => void;
     removeHighlight: (highlight: PaperHighlight) => void;
     setUserMessageReferences: React.Dispatch<React.SetStateAction<string[]>>;
-    setAddedContentForPaperNote: (content: string) => void;
 }
 
 export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
@@ -36,7 +35,6 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
         addHighlight,
         removeHighlight,
         setUserMessageReferences,
-        setAddedContentForPaperNote
     } = props;
 
     const [offsets, setOffsets] = useState<{ start: number; end: number } | null>(null);
@@ -62,11 +60,6 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
                     const newReferences = [...prev, selectedText];
                     return Array.from(new Set(newReferences)); // Remove duplicates
                 });
-            } else if (e.key === "i" && (e.ctrlKey || e.metaKey)) {
-                setAddedContentForPaperNote(selectedText);
-                setSelectedText("");
-                setTooltipPosition(null);
-                setIsAnnotating(false);
             } else if (e.key === "h" && (e.ctrlKey || e.metaKey)) {
                 addHighlight(selectedText, offsets?.start, offsets?.end);
                 e.stopPropagation();
@@ -171,30 +164,6 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
                         </Button>
                     )
                 }
-
-                {/* Add Note Button */}
-                <Button
-                    variant="ghost"
-                    className="w-full flex items-center justify-between text-sm font-normal h-9 px-2"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setAddedContentForPaperNote(selectedText);
-                        setSelectedText("");
-                        setTooltipPosition(null);
-                        setIsAnnotating(false);
-                    }}
-                >
-                    <div className="flex items-center gap-2">
-                        <NotebookText size={14} />
-                        Add to Note
-                    </div>
-                    <CommandShortcut className="text-muted-foreground">
-                        {localizeCommandToOS('I')}
-                    </CommandShortcut>
-                </Button>
-
 
                 {/* Add to Chat Button */}
                 <Button

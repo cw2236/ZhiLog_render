@@ -15,7 +15,7 @@ interface AuthContextType {
 	user: User | null;
 	loading: boolean;
 	error: string | null;
-	login: () => Promise<void>;
+	autoLogin: () => Promise<void>;
 	logout: (allDevices?: boolean) => Promise<void>;
 }
 
@@ -52,14 +52,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				if (response.success && response.user) {
 					setUser(response.user);
 				} else {
-					// Auth check failed, clear the user
-					setUser(null);
+					// 如果没有用户，自动创建一个临时用户
+					await autoLogin();
 				}
 			} catch (err) {
 				console.error('Auth check failed:', err);
 				setError('Failed to check authentication status');
-				// Also clear the user on error
-				setUser(null);
+				// 如果认证检查失败，尝试自动登录
+				try {
+					await autoLogin();
+				} catch (autoLoginErr) {
+					console.error('Auto login also failed:', autoLoginErr);
+				}
 			} finally {
 				setLoading(false);
 			}
@@ -68,21 +72,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		checkAuth();
 	}, []);
 
-	// Start Google login flow
-	const login = async () => {
+	// 自动登录功能
+	const autoLogin = async () => {
 		try {
 			setLoading(true);
-			// 改回请求后端 /api/auth/google/login
-			const response = await fetchFromApi('/api/auth/google/login');
-			if (response.auth_url) {
-				// Store the current URL as the return location after login
-				localStorage.setItem('returnTo', window.location.pathname);
-				// Redirect to Google OAuth
-				window.location.href = response.auth_url;
+			setError(null);
+			
+			// 调用自动登录API
+			const response = await fetchFromApi('/api/auth/auto-login', {
+				method: 'POST',
+			});
+			
+			if (response.success && response.user) {
+				setUser(response.user);
+			} else {
+				setError('Auto login failed');
 			}
 		} catch (err) {
-			console.error('Login failed:', err);
-			setError('Failed to start login process');
+			console.error('Auto login failed:', err);
+			setError('Failed to auto login');
 		} finally {
 			setLoading(false);
 		}
@@ -103,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	return (
-		<AuthContext.Provider value={{ user, loading, error, login, logout }}>
+		<AuthContext.Provider value={{ user, loading, error, autoLogin, logout }}>
 			{children}
 		</AuthContext.Provider>
 	);

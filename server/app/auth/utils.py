@@ -22,7 +22,7 @@ def set_session_cookie(
 ) -> None:
     """
     Set a session cookie in the response.
-
+    
     Args:
         response: FastAPI Response object
         token: Session token
@@ -34,12 +34,17 @@ def set_session_cookie(
     now = datetime.now(timezone.utc)
     max_age = int((expires_at - now).total_seconds())
 
+    # 在localhost环境下，不设置domain，让浏览器自动处理
+    cookie_domain = None
+    if SESSION_COOKIE_DOMAIN and SESSION_COOKIE_DOMAIN != "localhost":
+        cookie_domain = SESSION_COOKIE_DOMAIN
+
     response.set_cookie(
         key=SESSION_COOKIE_NAME,
         value=token,
         max_age=max_age,  # seconds until expiration
         expires=expires_at.strftime("%a, %d %b %Y %H:%M:%S GMT"),  # RFC format
-        domain=SESSION_COOKIE_DOMAIN,
+        domain=cookie_domain,  # 在localhost下不设置domain
         path="/",
         secure=SECURE_COOKIES,  # Only send over HTTPS
         httponly=http_only,  # Not accessible via JavaScript

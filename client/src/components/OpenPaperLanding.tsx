@@ -76,7 +76,7 @@ export default function OpenPaperLanding() {
                         size="sm"
                         asChild
                     >
-                        <Link href="/login">Login</Link>
+                        <Link href="/">Login</Link>
                     </Button>
                 </nav>
 
@@ -117,7 +117,7 @@ export default function OpenPaperLanding() {
                                 asChild
                                 className="mt-4"
                             >
-                                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+                                <Link href="/" onClick={() => setMobileMenuOpen(false)}>Login</Link>
                             </Button>
                         </nav>
                     </SheetContent>
@@ -145,7 +145,7 @@ export default function OpenPaperLanding() {
                                 </div>
                                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                                     <Button size="lg" className="bg-blue-500 hover:bg-blue-600 w-full min-[400px]:w-auto" asChild>
-                                        <Link href="/login">
+                                        <Link href="/">
                                             <Upload className="w-4 h-4 mr-2" />
                                             Start Free Trial
                                         </Link>
@@ -715,7 +715,7 @@ export default function OpenPaperLanding() {
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Button size="lg" className="bg-blue-500 hover:bg-blue-600 w-full sm:w-auto" asChild>
-                                    <Link href="/login">
+                                    <Link href="/">
                                         <Play className="h-4 w-4 mr-2" />
                                         Get Started
                                     </Link>

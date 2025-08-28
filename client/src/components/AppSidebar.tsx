@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, Clock, FileText, Globe2, Home, LogOut, MessageCircleQuestion, Moon, Route, Sun, User, X } from "lucide-react";
+import { AlertTriangle, Clock, FileText, Globe2, Home, LogOut, MessageCircleQuestion, Moon, Route, Sun, User, X, UserPlus } from "lucide-react";
 
 import {
     Sidebar,
@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { fetchFromApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,7 +80,7 @@ export interface PaperItem {
 
 export function AppSidebar() {
     const router = useRouter();
-    const { user, logout } = useAuth();
+    const { user, logout, autoLogin } = useAuth();
     const [allPapers, setAllPapers] = useState<PaperItem[]>([])
     const { darkMode, toggleDarkMode } = useIsDarkMode();
     const { subscription, loading: subscriptionLoading } = useSubscription();
@@ -107,7 +107,10 @@ export function AppSidebar() {
 
     const handleLogout = async () => {
         await logout();
-        router.push('/login');
+        // 移除登录页面重定向，因为不需要认证
+        // router.push('/login');
+        // 可以选择重定向到主页或其他页面
+        router.push('/');
     }
 
     // Determine current subscription warning state
@@ -318,6 +321,49 @@ export function AppSidebar() {
                         {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                     </Button>
                 </div>
+
+                {/* 用户信息区域 */}
+                <SidebarGroup className="mt-auto">
+                    <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        User
+                    </SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        {user ? (
+                            <div className="px-4 py-3">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={user.picture} alt={user.name} />
+                                        <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-foreground truncate">
+                                            {user.name || 'Temporary User'}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            {user.email || 'temp@example.com'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut className="h-4 w-4 mr-2" />
+                                    Logout
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="px-4 py-3">
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+                                    <p className="text-xs text-muted-foreground">Creating account...</p>
+                                </div>
+                            </div>
+                        )}
+                    </SidebarGroupContent>
+                </SidebarGroup>
 
                 {/* 订阅警告 */}
                 {subscription && !subscriptionLoading && (

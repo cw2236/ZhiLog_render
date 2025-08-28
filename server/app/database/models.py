@@ -61,13 +61,6 @@ class Base(DeclarativeBase):
         }
 
 
-class AuthProvider(str, Enum):
-    GOOGLE = "google"
-    # Add more providers as needed
-    # GITHUB = "github"
-    # MICROSOFT = "microsoft"
-
-
 # BASIC plans are not considered active subscriptions.
 # They are used for users who have not yet subscribed.
 class SubscriptionPlan(str, Enum):
@@ -95,10 +88,6 @@ class User(Base):
     picture = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
-
-    # OAuth related fields
-    auth_provider = Column(String, nullable=False)
-    provider_user_id = Column(String, nullable=False, index=True)
 
     # Optional profile information
     locale = Column(String, nullable=True)

@@ -12,7 +12,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { FileText, Loader2, MessageCircleWarning } from "lucide-react";
+import { FileText, Loader2, MessageCircleWarning, UserPlus } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { PdfDropzone } from "@/components/PdfDropzone";
 import Link from "next/link";
@@ -55,7 +55,7 @@ export default function Home() {
 	const [errorAlertMessage, setErrorAlertMessage] = useState(DEFAULT_PAPER_UPLOAD_ERROR_MESSAGE);
 	const [showPricingOnError, setShowPricingOnError] = useState(false);
 
-	const { user, loading: authLoading } = useAuth();
+	const { user, loading: authLoading, autoLogin } = useAuth();
 	const { subscription, loading: subscriptionLoading } = useSubscription();
 	const isMobile = useIsMobile();
 
@@ -355,6 +355,38 @@ export default function Home() {
 	if (authLoading) {
 		// Maybe show a loading spinner or skeleton
 		return null;
+	}
+
+	// 移除自动登录提示，直接显示上传功能
+	// if (!authLoading && !user) {
+	// 	return (
+	// 		<div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-4">
+	// 			<div className="text-center max-w-md">
+	// 				<div className="mx-auto mb-6 rounded-full bg-blue-100 p-3 text-blue-600">
+	// 					<UserPlus className="h-12 w-12" />
+	// 				</div>
+	// 				<h2 className="text-2xl font-bold mb-4">Welcome to Open Paper</h2>
+	// 				<p className="text-muted-foreground mb-6">
+	// 					Click the button below to automatically create a temporary account for testing.
+	// 				</p>
+	// 				<Button onClick={autoLogin} size="lg" className="w-full">
+	// 					<UserPlus className="h-4 w-4 mr-2" />
+	// 					Start Testing
+	// 				</Button>
+	// 				<p className="text-xs text-muted-foreground mt-4">
+	// 					This creates a temporary account that will be stored in your browser cookies.
+	// 				</p>
+	// 			</div>
+	// 		</div>
+	// 	);
+	// }
+
+	// 如果没有用户，自动创建一个临时用户（静默创建）
+	if (!authLoading && !user) {
+		// 自动创建用户，不显示提示
+		useEffect(() => {
+			autoLogin();
+		}, []);
 	}
 
 	if (!user && !authLoading) {
