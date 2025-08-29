@@ -31,7 +31,6 @@ const nextConfig = {
     async rewrites() {
         // 根据环境变量动态配置API URL
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const celeryApiUrl = process.env.NEXT_PUBLIC_CELERY_API_URL || 'http://localhost:8001';
         
         return [
             {
@@ -41,18 +40,12 @@ const nextConfig = {
             {
                 source: '/api/:path*',
                 destination: `${apiUrl}/api/:path*`
-            },
-            {
-                source: '/celery/:path*',
-                destination: `${celeryApiUrl}/:path*`
             }
         ];
     },
     // 生产环境优化
     output: 'standalone',
-    experimental: {
-        outputFileTracingRoot: undefined,
-    },
+    // 移除有问题的实验性配置
 }
 
 const withMDX = createMDX({

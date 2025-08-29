@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: zhilog-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: .next
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://zhilog-backend.onrender.com
+      - key: NEXT_PUBLIC_CLIENT_DOMAIN
+        value: https://zhilog-frontend.onrender.com
