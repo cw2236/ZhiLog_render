@@ -48,10 +48,9 @@ const nextConfig = {
             }
         ];
     },
-    // 生产环境优化
-    output: 'standalone',
+    // 移除有问题的output属性
     experimental: {
-        outputFileTracingRoot: undefined,
+        // 移除有问题的配置
     },
 }
 
