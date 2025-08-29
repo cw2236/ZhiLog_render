@@ -35,7 +35,7 @@ interface CommentStyleChatProps {
     activeHighlight?: any; // 当前活跃的高亮
     // 新增对话相关 props
     paperId?: string;
-    conversationId?: string;
+    conversationId?: string | null;
     // 新增llmProvider
     llmProvider?: string;
 }
