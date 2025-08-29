@@ -2,7 +2,6 @@ import logging
 import os
 
 import uvicorn  # type: ignore
-from app.api.api import router
 from app.api.auth_api import auth_router
 from app.api.highlight_api import highlight_router
 from app.api.paper_api import paper_router
@@ -44,9 +43,8 @@ app.add_middleware(
 )
 
 # Include only the routers needed for no-database mode
-app.include_router(router, prefix="/api")
 app.include_router(auth_router, prefix="/api/auth")  # Auth routes
-app.include_router(paper_router, prefix="/api/paper")
+app.include_router(paper_router, prefix="/api/paper")  # Paper routes
 app.include_router(highlight_router, prefix="/api/highlight")  # Highlight routes
 app.include_router(paper_upload_router, prefix="/api/paper/upload")  # Paper upload routes
 app.include_router(chat_history_router, prefix="/api/chat-history", tags=["chat-history"])  # Chat history routes
