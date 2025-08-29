@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://zhilog-render.onrender.com';
 
 export async function fetchFromApi(endpoint: string, options: RequestInit = {}) {
     const headers: HeadersInit = {};
@@ -15,6 +15,7 @@ export async function fetchFromApi(endpoint: string, options: RequestInit = {}) 
             ...options.headers,
         },
         credentials: 'include', // Include cookies for auth
+        redirect: 'follow', // Follow redirects automatically
     });
 
     if (!response.ok) {
@@ -52,6 +53,7 @@ export async function fetchStreamFromApi(
             Accept: 'text/event-stream',
         },
         credentials: 'include', // Include cookies for auth
+        redirect: 'follow', // Follow redirects automatically
     });
 
     if (!response.ok) {
