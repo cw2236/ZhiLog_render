@@ -1507,6 +1507,7 @@ export default function PaperView() {
                                                 activeHighlight={activeHighlight}
                                                 updateAnnotation={updateAnnotation}
                                                 removeAnnotation={removeAnnotation}
+                                                user={user}
                                             />
                                         </div>
                                     )
