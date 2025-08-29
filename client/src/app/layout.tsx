@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth';
-import { SubscriptionProvider } from '@/hooks/useSubscription';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -52,9 +51,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <SubscriptionProvider>
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </SubscriptionProvider>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </AuthProvider>
       </body>
     </html>
