@@ -25,6 +25,10 @@ export default function SharedPaperView() {
     const [annotations, setAnnotations] = useState<PaperHighlightAnnotation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    // 添加缺失的状态以满足PdfViewer的要求
+    const [commentThreads, setCommentThreads] = useState<any[]>([]);
+    const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+    
     const {
         activeHighlight,
         setActiveHighlight,
@@ -105,6 +109,10 @@ export default function SharedPaperView() {
                             renderAnnotations={() => { }}
                             annotations={[]} // Pass empty or actual annotations if viewer uses them
                             setAddedContentForPaperNote={() => { }}
+                            // 添加缺失的props
+                            commentThreads={commentThreads}
+                            activeThreadId={activeThreadId}
+                            setActiveThreadId={setActiveThreadId}
                         // Add a specific readOnly prop if your PdfViewer supports it
                         // readOnly={true}
                         />
