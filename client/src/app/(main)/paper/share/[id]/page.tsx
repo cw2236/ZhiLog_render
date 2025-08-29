@@ -134,6 +134,12 @@ export default function SharedPaperView() {
                         onHighlightClick={handleHighlightClick}
                         activeHighlight={activeHighlight}
                         readonly={true}
+                        user={{
+                            id: 'shared-viewer',
+                            email: 'shared@example.com',
+                            name: 'Shared Viewer',
+                            is_active: true
+                        }}
                     />
                 </div>
             </div>

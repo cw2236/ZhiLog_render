@@ -11,7 +11,7 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { BasicUser } from "@/lib/auth";
+import { User } from "@/lib/auth";
 import { User as UserIcon } from 'lucide-react';
 import { smoothScrollTo } from '@/lib/animation';
 import Annotation from './Annotation';
@@ -107,7 +107,7 @@ interface HighlightThreadProps {
 	addAnnotation?: (highlightId: string, content: string) => Promise<PaperHighlightAnnotation>;
 	removeAnnotation?: (annotationId: string) => void;
 	updateAnnotation?: (annotationId: string, content: string) => void;
-	user?: BasicUser
+	user?: User
 	readonly?: boolean;
 }
 
@@ -192,7 +192,7 @@ interface AnnotationsViewProps {
 	addAnnotation?: (highlightId: string, content: string) => Promise<PaperHighlightAnnotation>;
 	removeAnnotation?: (annotationId: string) => void;
 	updateAnnotation?: (annotationId: string, content: string) => void;
-	user: BasicUser;
+	user: User;
 	readonly?: boolean;
 }
 
