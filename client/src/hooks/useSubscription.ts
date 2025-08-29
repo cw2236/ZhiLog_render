@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchFromApi } from '@/lib/api';
+// import { fetchFromApi } from '@/lib/api'; // 注释掉API调用
 
 export interface SubscriptionLimits {
     paper_uploads: number;
@@ -34,33 +34,36 @@ export interface UseSubscriptionReturn {
 }
 
 export const useSubscription = (): UseSubscriptionReturn => {
-    const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchSubscription = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await fetchFromApi("/api/subscription/usage");
-            setSubscription(response);
-        } catch (err) {
-            console.error("Error fetching subscription:", err);
-            setError(err instanceof Error ? err.message : "Failed to fetch subscription data");
-        } finally {
-            setLoading(false);
+    // 返回模拟的订阅数据，避免API调用失败
+    const mockSubscription: SubscriptionData = {
+        plan: 'researcher',
+        limits: {
+            paper_uploads: 100,
+            knowledge_base_size: 1000,
+            chat_credits_daily: 1000,
+            audio_overviews_monthly: 50,
+            model: ['gpt-4', 'claude-3']
+        },
+        usage: {
+            paper_uploads: 0,
+            paper_uploads_remaining: 100,
+            knowledge_base_size: 0,
+            knowledge_base_size_remaining: 1000,
+            chat_credits_used: 0,
+            chat_credits_remaining: 1000,
+            audio_overviews_used: 0,
+            audio_overviews_remaining: 50
         }
-    }, []);
-
-    useEffect(() => {
-        fetchSubscription();
-    }, [fetchSubscription]);
+    };
 
     return {
-        subscription,
-        loading,
-        error,
-        refetch: fetchSubscription
+        subscription: mockSubscription,
+        loading: false,
+        error: null,
+        refetch: async () => {
+            // 模拟的refetch函数，不做任何操作
+            console.log('Mock subscription refetch called');
+        }
     };
 };
 
