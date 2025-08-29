@@ -1627,15 +1627,6 @@ export default function PaperView() {
                                             ref={commentChatRef}
                                             messages={messages}
                                             isStreaming={isStreaming}
-                                            onSendMessage={(message, selectedText) => {
-                                                // 如果有选中的文本，添加到 userMessageReferences
-                                                if (selectedText) {
-                                                    setUserMessageReferences([selectedText]);
-                                                }
-                                                setCurrentMessage(message);
-                                                // 触发提交
-                                                setTimeout(() => handleSubmit(null, selectedText), 0);
-                                            }}
                                             selectedText={selectedText}
                                             onClearSelectedText={() => setSelectedText("")}
                                             // 新增评论线程相关 props
