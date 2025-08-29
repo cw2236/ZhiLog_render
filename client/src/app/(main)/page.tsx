@@ -245,6 +245,19 @@ export default function Home() {
 
 
 	const handleFileUpload = async (file: File) => {
+		console.log('Starting file upload:', { fileName: file.name, fileSize: file.size });
+		
+		if (!user) {
+			toast.error("Please log in to upload papers");
+			return;
+		}
+
+		// Check file size
+		if (file.size > 10 * 1024 * 1024) { // 10MB
+			toast.error("File size must be less than 10MB");
+			return;
+		}
+
 		setIsUploading(true);
 		setFileSize(file.size);
 		setCeleryMessage(null); // Reset celery message
@@ -260,7 +273,7 @@ export default function Home() {
 		formData.append('file', file);
 
 		try {
-			const response: PdfUploadResponse = await fetchFromApi('/api/paper/upload', {
+			const response: PdfUploadResponse = await fetchFromApi('/api/paper/upload/', {
 				method: 'POST',
 				body: formData,
 				headers: {
@@ -322,7 +335,7 @@ export default function Home() {
 
 			try {
 				// Fallback to server-side fetch
-				const response: PdfUploadResponse = await fetchFromApi('/api/paper/upload/from-url', {
+				const response: PdfUploadResponse = await fetchFromApi('/api/paper/upload/from-url/', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
