@@ -84,9 +84,51 @@ async def health_check():
     """Health check endpoint for Render"""
     return {"status": "healthy", "message": "ZhiLog Backend is running in no-database mode"}
 
-# 挂载 jobs/uploads 目录为 /static/pdf
-pdf_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../jobs/uploads'))
-app.mount("/static/pdf", StaticFiles(directory=pdf_dir), name="pdf")
+# 创建必要的目录
+def create_upload_directories():
+    """创建上传目录"""
+    try:
+        # 尝试多个可能的路径
+        possible_paths = [
+            "server/jobs/uploads/papers",
+            "jobs/uploads/papers", 
+            "/opt/render/project/src/server/jobs/uploads/papers",
+            "/opt/render/project/src/jobs/uploads/papers",
+            "uploads/papers"
+        ]
+        
+        for path in possible_paths:
+            try:
+                os.makedirs(path, exist_ok=True)
+                logger.info(f"Created/verified directory: {path}")
+                return path
+            except Exception as e:
+                logger.warning(f"Could not create directory {path}: {e}")
+                continue
+        
+        # 如果所有路径都失败，使用当前目录
+        fallback_path = "uploads/papers"
+        os.makedirs(fallback_path, exist_ok=True)
+        logger.info(f"Using fallback directory: {fallback_path}")
+        return fallback_path
+        
+    except Exception as e:
+        logger.error(f"Error creating upload directories: {e}")
+        # 使用当前目录作为最后的备选
+        fallback_path = "uploads/papers"
+        os.makedirs(fallback_path, exist_ok=True)
+        return fallback_path
+
+# 创建上传目录
+upload_dir = create_upload_directories()
+
+# 挂载上传目录为静态文件服务
+try:
+    app.mount("/static/pdf", StaticFiles(directory=upload_dir), name="pdf")
+    logger.info(f"Successfully mounted /static/pdf to {upload_dir}")
+except Exception as e:
+    logger.error(f"Failed to mount static files: {e}")
+    # 如果挂载失败，我们仍然可以继续运行，只是静态文件服务不可用
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8000"))
