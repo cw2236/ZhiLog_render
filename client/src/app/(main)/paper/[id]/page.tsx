@@ -1499,16 +1499,22 @@ export default function PaperView() {
                                 {
                                     rightSideFunction === 'Annotations' && (
                                         <div className="flex flex-col h-[calc(100vh-64px)] px-2 overflow-y-auto">
-                                            <AnnotationsView
-                                                annotations={annotations}
-                                                highlights={highlights}
-                                                onHighlightClick={handleHighlightClick}
-                                                addAnnotation={addAnnotation}
-                                                activeHighlight={activeHighlight}
-                                                updateAnnotation={updateAnnotation}
-                                                removeAnnotation={removeAnnotation}
-                                                user={user}
-                                            />
+                                            {user ? (
+                                                <AnnotationsView
+                                                    annotations={annotations}
+                                                    highlights={highlights}
+                                                    onHighlightClick={handleHighlightClick}
+                                                    addAnnotation={addAnnotation}
+                                                    activeHighlight={activeHighlight}
+                                                    updateAnnotation={updateAnnotation}
+                                                    removeAnnotation={removeAnnotation}
+                                                    user={user}
+                                                />
+                                            ) : (
+                                                <div className="flex justify-center items-center h-full">
+                                                    <p className="text-muted-foreground">Loading user...</p>
+                                                </div>
+                                            )}
                                         </div>
                                     )
                                 }
