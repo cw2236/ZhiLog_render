@@ -447,7 +447,7 @@ export default function PaperView() {
     useEffect(() => {
         const handleSwitchToChat = (event: CustomEvent) => {
             const { threadId } = event.detail;
-            console.log('Switching to chat thread:', threadId);
+            // console.log('Switching to chat thread:', threadId); // Removed console.log
             
             // 切换到 Overview 标签
             setRightSideFunction('Overview');
@@ -888,7 +888,7 @@ export default function PaperView() {
                 const chunk = decoder.decode(value, { stream: true });
                 buffer += chunk;
                 chunkCount++;
-                console.log(`Processing chunk #${chunkCount}:`, chunk);
+                // console.log(`Processing chunk #${chunkCount}:`, chunk); // Removed console.log
 
                 // Split buffer by delimiter and process complete events
                 const parts = buffer.split(END_DELIMITER);
@@ -902,7 +902,7 @@ export default function PaperView() {
 
                     try {
                         const event = JSON.parse(part);
-                        console.log('Parsed event:', event);
+                        // console.log('Parsed event:', event); // Removed console.log
 
                         if (event.type === 'content') {
                             contentChunks++;
@@ -922,9 +922,9 @@ export default function PaperView() {
                 }
             }
 
-            console.log(`Stream completed. Processed ${chunkCount} chunks (${contentChunks} content, ${referenceChunks} references).`);
-            console.log("Final accumulated content:", accumulatedContent);
-            console.log("Final references:", references);
+            // console.log(`Stream completed. Processed ${chunkCount} chunks (${contentChunks} content, ${referenceChunks} references).`); // Removed console.log
+            // console.log("Final accumulated content:", accumulatedContent); // Removed console.log
+            // console.log("Final references:", references); // Removed console.log
 
             // After streaming is complete, add the full message to the state
             if (accumulatedContent) {
@@ -1266,7 +1266,7 @@ export default function PaperView() {
         const handler = (e: any) => {
             if (e.detail?.text && !isProcessing) {
                 isProcessing = true;
-                console.log('Received addBubbleCommentThread event:', e.detail.text);
+                // console.log('Received addBubbleCommentThread event:', e.detail.text); // Removed console.log
                 // 只设置 pendingBubbleThread，不直接创建线程
                 setPendingBubbleThread({ text: e.detail.text });
                 
@@ -1288,7 +1288,7 @@ export default function PaperView() {
     // 新增：Chat面板挂载后自动处理pendingBubbleThread
     useEffect(() => {
         if (rightSideFunction === 'Chat' && commentChatRef.current && pendingBubbleThread) {
-            console.log('Processing pendingBubbleThread', pendingBubbleThread);
+            // console.log('Processing pendingBubbleThread', pendingBubbleThread); // Removed console.log
             // 使用 setTimeout 确保在下一个事件循环中处理，避免重复触发
             setTimeout(() => {
                 if (commentChatRef.current && pendingBubbleThread) {
@@ -1364,7 +1364,6 @@ export default function PaperView() {
                 >
                     {paperData.file_url && (
                         <div className="w-full h-full">
-                            {console.log('PDF file_url:', paperData.file_url)}
                             <PdfViewer
                                 ref={pdfViewerRef}
                                 pdfUrl={paperData.file_url}
