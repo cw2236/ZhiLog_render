@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { fetchFromApi } from './api';
+// import { fetchFromApi } from './api'; // 注释掉API调用
 
 export interface User {
 	id: string;
@@ -48,13 +48,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		async function checkAuth() {
 			try {
-				const response = await fetchFromApi('/api/auth/me');
-				if (response.success && response.user) {
-					setUser(response.user);
-				} else {
-					// 如果没有用户，自动创建一个临时用户
-					await autoLogin();
-				}
+				// 使用模拟数据而不是调用API
+				const mockUser: User = {
+					id: 'mock-user-id',
+					email: 'user@example.com',
+					name: 'Test User',
+					is_active: true
+				};
+				setUser(mockUser);
 			} catch (err) {
 				console.error('Auth check failed:', err);
 				setError('Failed to check authentication status');
@@ -78,16 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			setLoading(true);
 			setError(null);
 			
-			// 调用自动登录API
-			const response = await fetchFromApi('/api/auth/auto-login', {
-				method: 'POST',
-			});
-			
-			if (response.success && response.user) {
-				setUser(response.user);
-			} else {
-				setError('Auto login failed');
-			}
+			// 使用模拟数据而不是调用API
+			const mockUser: User = {
+				id: 'mock-user-id',
+				email: 'user@example.com',
+				name: 'Test User',
+				is_active: true
+			};
+			setUser(mockUser);
 		} catch (err) {
 			console.error('Auto login failed:', err);
 			setError('Failed to auto login');
@@ -100,7 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const logout = async (allDevices = false) => {
 		try {
 			setLoading(true);
-			await fetchFromApi(`/api/auth/logout?all_devices=${allDevices}`);
+			// 模拟logout API调用
+			console.log('Mock logout called', { allDevices });
 			setUser(null);
 		} catch (err) {
 			console.error('Logout failed:', err);
