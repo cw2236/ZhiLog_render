@@ -21,6 +21,7 @@ interface InlineAnnotationMenuProps {
     addHighlight: (selectedText: string, startOffset?: number, endOffset?: number) => void;
     removeHighlight: (highlight: PaperHighlight) => void;
     setUserMessageReferences: React.Dispatch<React.SetStateAction<string[]>>;
+    setAddedContentForPaperNote: (content: string) => void;
 }
 
 export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
@@ -35,6 +36,7 @@ export default function InlineAnnotationMenu(props: InlineAnnotationMenuProps) {
         addHighlight,
         removeHighlight,
         setUserMessageReferences,
+        setAddedContentForPaperNote,
     } = props;
 
     const [offsets, setOffsets] = useState<{ start: number; end: number } | null>(null);
