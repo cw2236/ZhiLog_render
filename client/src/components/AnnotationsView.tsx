@@ -277,15 +277,17 @@ export function AnnotationsView(
 		}
 	}, [activeHighlight]);
 
-	// Sort highlights by creation time (newest first)
+	// Sort highlights by role and position
 	useEffect(() => {
 		const sorted = [...highlights].sort((a, b) => {
-			// Sort by role first (user highlights first), then by creation time
+			// Sort by role first (user highlights first), then by position
 			if (a.role !== b.role) {
 				return a.role === 'user' ? -1 : 1;
 			}
-			// If both have the same role, sort by creation time (newest first)
-			return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+			// If both have the same role, sort by position (start_offset)
+			const aStart = a.start_offset || 0;
+			const bStart = b.start_offset || 0;
+			return aStart - bStart;
 		});
 		setSortedHighlights(sorted);
 	}, [highlights]);
