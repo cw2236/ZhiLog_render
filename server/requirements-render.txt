@@ -1,12 +1,11 @@
 # Main Backend Dependencies for Render (No Database Mode)
 fastapi>=0.115
-uvicorn>=0.34
+uvicorn[standard]>=0.34
 pydantic[email]>=2.10
 python-dotenv>=1.0.1
 python-multipart>=0.0.20
 pydantic-settings>=2.8.1
 itsdangerous>=2.2.0
-gunicorn>=23.0.0
 openai>=1.82.0
 posthog>=4.2.0
 pillow>=11.2.1
