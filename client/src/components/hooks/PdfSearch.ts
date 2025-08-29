@@ -105,7 +105,8 @@ export function usePdfSearch(explicitSearchTerm?: string) {
 
         const nextMatch = (currentMatch + 1) % searchResults.length;
         setCurrentMatch(nextMatch);
-        scrollToMatch(searchResults[nextMatch]);
+        const pageIndex = searchResults[nextMatch];
+        scrollToMatch({ pageIndex, matchIndex: 0, nodes: [] });
     };
 
     const goToPreviousMatch = () => {
@@ -113,7 +114,8 @@ export function usePdfSearch(explicitSearchTerm?: string) {
 
         const prevMatch = (currentMatch - 1 + searchResults.length) % searchResults.length;
         setCurrentMatch(prevMatch);
-        scrollToMatch(searchResults[prevMatch]);
+        const pageIndex = searchResults[prevMatch];
+        scrollToMatch({ pageIndex, matchIndex: 0, nodes: [] });
     };
 
     return {
