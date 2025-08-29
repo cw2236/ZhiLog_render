@@ -16,23 +16,13 @@ import { User as UserIcon } from 'lucide-react';
 import { smoothScrollTo } from '@/lib/animation';
 import Annotation from './Annotation';
 
-// Function to get badge styling based on highlight type
-function getHighlightTypeStyling(type: string) {
-	switch (type) {
-		case 'topic':
-			return { variant: 'default' as const, className: 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200' };
-		case 'motivation':
+// Function to get badge styling based on highlight role
+function getHighlightRoleStyling(role: string) {
+	switch (role) {
+		case 'user':
 			return { variant: 'default' as const, className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200' };
-		case 'method':
+		case 'assistant':
 			return { variant: 'default' as const, className: 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200' };
-		case 'evidence':
-			return { variant: 'default' as const, className: 'bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200' };
-		case 'result':
-			return { variant: 'default' as const, className: 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200' };
-		case 'impact':
-			return { variant: 'default' as const, className: 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200' };
-		case 'general':
-			return { variant: 'secondary' as const, className: 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200' };
 		default:
 			return { variant: 'secondary' as const, className: 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200' };
 	}
@@ -137,15 +127,15 @@ function HighlightThread({
 				{/* The Blockquote */}
 				<blockquote className={`border-l-4 ${highlightBorderColor} pl-4 py-2 mb-4 bg-background`}>
 					<div className="flex items-start flex-col gap-2">
-						{highlight.type && (
+						{highlight.role && (
 							(() => {
-								const styling = getHighlightTypeStyling(highlight.type);
+								const styling = getHighlightRoleStyling(highlight.role);
 								return (
 									<Badge
 										variant={styling.variant}
 										className={`text-xs shrink-0 ${styling.className}`}
 									>
-										{highlight.type.replace('_', ' ').toLowerCase()}
+										{highlight.role.replace('_', ' ').toLowerCase()}
 									</Badge>
 								);
 							})()
@@ -197,33 +187,33 @@ interface AnnotationsViewProps {
 }
 
 interface AnnotationsToolbarProps {
-	onHighlightTypeFilter: (type: string) => void;
+	onHighlightRoleFilter: (role: string) => void;
 	onShowJustMine: (show: boolean) => void;
-	selectedHighlightType: string;
+	selectedHighlightRole: string;
 	showJustMine: boolean;
-	highlightTypes: string[];
+	highlightRoles: string[];
 	readonly: boolean;
 }
 
 function AnnotationsToolbar({
-	onHighlightTypeFilter,
+	onHighlightRoleFilter,
 	onShowJustMine,
-	selectedHighlightType,
+	selectedHighlightRole,
 	showJustMine,
-	highlightTypes,
+	highlightRoles,
 	readonly,
 }: AnnotationsToolbarProps) {
 	return (
 		<div className="flex items-center gap-3 p-3 border-b border-border bg-muted/20">
-			<Select value={selectedHighlightType} onValueChange={onHighlightTypeFilter}>
+			<Select value={selectedHighlightRole} onValueChange={onHighlightRoleFilter}>
 				<SelectTrigger className="w-[140px] h-8">
-					<SelectValue placeholder="All types" />
+					<SelectValue placeholder="All roles" />
 				</SelectTrigger>
 				<SelectContent>
-					<SelectItem value="all">All types</SelectItem>
-					{highlightTypes.map((type) => (
-						<SelectItem key={type} value={type}>
-							{type.replace('_', ' ').toLowerCase()}
+					<SelectItem value="all">All roles</SelectItem>
+					{highlightRoles.map((role) => (
+						<SelectItem key={role} value={role}>
+							{role.replace('_', ' ').toLowerCase()}
 						</SelectItem>
 					))}
 				</SelectContent>
@@ -264,18 +254,18 @@ export function AnnotationsView(
 	const [sortedHighlights, setSortedHighlights] = React.useState<PaperHighlight[]>([]);
 	const [filteredHighlights, setFilteredHighlights] = React.useState<PaperHighlight[]>([]);
 	const [highlightAnnotationMap, setHighlightAnnotationMap] = React.useState<Map<string, PaperHighlightAnnotation[]>>(new Map());
-	const [selectedHighlightType, setSelectedHighlightType] = React.useState<string>('all');
+	const [selectedHighlightRole, setSelectedHighlightRole] = React.useState<string>('all');
 	const [showJustMine, setShowJustMine] = React.useState<boolean>(false);
 	const highlightRefs = useRef<Record<string, HTMLDivElement | null>>({});
 	const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
-	// Get unique highlight types for filter dropdown
-	const uniqueHighlightTypes = React.useMemo(() => {
-		const types = new Set<string>();
+	// Get unique highlight roles for filter dropdown
+	const uniqueHighlightRoles = React.useMemo(() => {
+		const roles = new Set<string>();
 		highlights.forEach(h => {
-			if (h.type) types.add(h.type);
+			if (h.role) roles.add(h.role);
 		});
-		return Array.from(types).sort();
+		return Array.from(roles).sort();
 	}, [highlights]);
 
 	useEffect(() => {
@@ -287,16 +277,21 @@ export function AnnotationsView(
 		}
 	}, [activeHighlight]);
 
+	// Sort highlights by creation time (newest first)
 	useEffect(() => {
-		const sortedHighlights = highlights.sort((a, b) => {
-			const aStart = a.start_offset || 0;
-			const bStart = b.start_offset || 0;
-			return aStart - bStart;
+		const sorted = [...highlights].sort((a, b) => {
+			// Sort by role first (user highlights first), then by creation time
+			if (a.role !== b.role) {
+				return a.role === 'user' ? -1 : 1;
+			}
+			// If both have the same role, sort by creation time (newest first)
+			return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
 		});
+		setSortedHighlights(sorted);
+	}, [highlights]);
 
-		setSortedHighlights(sortedHighlights);
-
-		// Handle user annotations
+	// Handle user annotations mapping
+	useEffect(() => {
 		const annotationMap = new Map<string, PaperHighlightAnnotation[]>();
 		annotations.forEach((annotation) => {
 			const highlightId = annotation.highlight_id;
@@ -305,15 +300,15 @@ export function AnnotationsView(
 			annotationMap.set(highlightId, existingAnnotations);
 		});
 		setHighlightAnnotationMap(annotationMap);
-	}, [highlights, annotations]);
+	}, [annotations]);
 
 	// Filter highlights based on selected filters
 	useEffect(() => {
-		let filtered = sortedHighlights;
+		let filtered = [...sortedHighlights];
 
-		// Filter by highlight type
-		if (selectedHighlightType !== 'all') {
-			filtered = filtered.filter(h => h.type === selectedHighlightType);
+		// Filter by highlight role
+		if (selectedHighlightRole !== 'all') {
+			filtered = filtered.filter(h => h.role === selectedHighlightRole);
 		}
 
 		// Filter to show only user's annotations if enabled
@@ -327,10 +322,10 @@ export function AnnotationsView(
 		}
 
 		setFilteredHighlights(filtered);
-	}, [sortedHighlights, selectedHighlightType, showJustMine, highlightAnnotationMap]);
+	}, [sortedHighlights, selectedHighlightRole, showJustMine, highlightAnnotationMap]);
 
-	const handleHighlightTypeFilter = (type: string) => {
-		setSelectedHighlightType(type);
+	const handleHighlightRoleFilter = (role: string) => {
+		setSelectedHighlightRole(role);
 	};
 
 	const handleShowJustMine = (show: boolean) => {
@@ -351,11 +346,11 @@ export function AnnotationsView(
 	return (
 		<div className="flex flex-col h-full">
 			<AnnotationsToolbar
-				onHighlightTypeFilter={handleHighlightTypeFilter}
+				onHighlightRoleFilter={handleHighlightRoleFilter}
 				onShowJustMine={handleShowJustMine}
-				selectedHighlightType={selectedHighlightType}
+				selectedHighlightRole={selectedHighlightRole}
 				showJustMine={showJustMine}
-				highlightTypes={uniqueHighlightTypes}
+				highlightRoles={uniqueHighlightRoles}
 				readonly={readonly}
 			/>
 
