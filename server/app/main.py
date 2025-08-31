@@ -119,6 +119,44 @@ async def get_available_models():
         ]
     }
 
+# 添加更多缺失的API端点
+@app.get("/api/annotation/{paper_id}")
+async def get_paper_annotations(paper_id: str):
+    """Get paper annotations - 返回模拟数据"""
+    return {
+        "paper_id": paper_id,
+        "annotations": [],
+        "highlights": []
+    }
+
+@app.get("/api/paper/conversation")
+async def get_paper_conversation(paper_id: str):
+    """Get paper conversation - 返回模拟数据"""
+    return {
+        "paper_id": paper_id,
+        "conversation_id": f"conv_{paper_id}",
+        "messages": []
+    }
+
+@app.post("/api/conversation/{paper_id}")
+async def create_paper_conversation(paper_id: str):
+    """Create paper conversation - 返回模拟数据"""
+    return {
+        "paper_id": paper_id,
+        "conversation_id": f"conv_{paper_id}",
+        "created_at": "2025-08-31T14:30:00Z"
+    }
+
+@app.get("/api/conversation/{conversation_id}")
+async def get_conversation(conversation_id: str):
+    """Get conversation - 返回模拟数据"""
+    return {
+        "conversation_id": conversation_id,
+        "paper_id": conversation_id.replace("conv_", ""),
+        "messages": [],
+        "created_at": "2025-08-31T14:30:00Z"
+    }
+
 # 创建必要的目录
 def create_upload_directories():
     """创建上传目录"""

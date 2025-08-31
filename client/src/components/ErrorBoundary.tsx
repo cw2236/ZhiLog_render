@@ -25,6 +25,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('Component stack:', errorInfo.componentStack);
     this.setState({
       error,
       errorInfo
@@ -62,7 +63,13 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 <details className="mt-4 text-left">
                   <summary className="cursor-pointer text-sm text-gray-600">Error Details</summary>
                   <pre className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded overflow-auto">
+                    <strong>Error:</strong> {this.state.error.message}
+                    {'\n\n'}
+                    <strong>Stack:</strong>
                     {this.state.error.stack}
+                    {'\n\n'}
+                    <strong>Component Stack:</strong>
+                    {this.state.errorInfo?.componentStack}
                   </pre>
                 </details>
               )}
