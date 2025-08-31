@@ -1,6 +1,7 @@
 import json
 import logging
 from typing import List, Optional
+from datetime import datetime
 
 from app.auth.dependencies import get_current_user, get_required_user
 from app.llm.client import get_llm_client
@@ -201,3 +202,42 @@ async def get_shareable_paper(
     except Exception as e:
         logger.error(f"Error getting shareable paper: {e}")
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
+
+
+@paper_router.get("/relevant")
+async def get_relevant_papers(
+    current_user: CurrentUser = Depends(get_required_user),
+) -> JSONResponse:
+    """获取用户的相关论文列表"""
+    try:
+        # 从内存存储中获取论文
+        from app.api.paper_upload_api import in_memory_papers
+        
+        # 过滤出属于当前用户的论文
+        user_papers = []
+        for paper_id, paper_data in in_memory_papers.items():
+            if paper_data.get('user_id') == str(current_user.id):
+                user_papers.append({
+                    'id': paper_id,
+                    'title': paper_data.get('filename', 'Untitled'),
+                    'created_at': paper_data.get('created_at', datetime.now().isoformat()),
+                    'file_url': f"/api/paper/upload/download/{paper_id}",
+                    'status': 'completed'
+                })
+        
+        # 按创建时间排序（最新的在前）
+        user_papers.sort(key=lambda x: x['created_at'], reverse=True)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "papers": user_papers,
+                "total": len(user_papers)
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error getting relevant papers: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Failed to get relevant papers"}
+        )
