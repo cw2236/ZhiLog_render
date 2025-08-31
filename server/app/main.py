@@ -84,12 +84,6 @@ async def health_check():
     """Health check endpoint for Render"""
     return {"status": "healthy", "message": "ZhiLog Backend is running in no-database mode"}
 
-# 全局OPTIONS请求处理器
-@app.options("/{full_path:path}")
-async def options_handler(full_path: str):
-    """Handle all OPTIONS requests for CORS preflight"""
-    return {"message": "OK"}
-
 # 创建必要的目录
 def create_upload_directories():
     """创建上传目录"""

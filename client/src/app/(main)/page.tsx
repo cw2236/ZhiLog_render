@@ -60,6 +60,15 @@ export default function Home() {
 	const { subscription, loading: subscriptionLoading } = useSubscription();
 	const isMobile = useIsMobile();
 
+	// 添加调试信息
+	useEffect(() => {
+		console.log('=== HOMEPAGE DEBUG ===');
+		console.log('user:', user);
+		console.log('authLoading:', authLoading);
+		console.log('subscription:', subscription);
+		console.log('subscriptionLoading:', subscriptionLoading);
+	}, [user, authLoading, subscription, subscriptionLoading]);
+
 	// Toast notifications for subscription limits
 	useEffect(() => {
 		if (!subscriptionLoading && subscription && user) {
@@ -418,27 +427,6 @@ export default function Home() {
 			autoLogin();
 		}, []);
 	}
-
-	// 确保后端有正确的会话
-	useEffect(() => {
-		const ensureBackendSession = async () => {
-			try {
-				console.log('Ensuring backend session...');
-				const response = await fetchFromApi('/api/auth/auto-login', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-				});
-				console.log('Backend auto-login response:', response);
-			} catch (error) {
-				console.error('Failed to ensure backend session:', error);
-			}
-		};
-
-		// 如果用户存在，确保后端会话
-		if (user) {
-			ensureBackendSession();
-		}
-	}, [user]);
 
 	if (!user && !authLoading) {
 		return (
