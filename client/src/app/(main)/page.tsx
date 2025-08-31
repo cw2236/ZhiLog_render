@@ -273,6 +273,7 @@ export default function Home() {
 		formData.append('file', file);
 
 		try {
+			console.log('Calling upload API with path: /api/paper/upload/');
 			const response: PdfUploadResponse = await fetchFromApi('/api/paper/upload/', {
 				method: 'POST',
 				body: formData,
@@ -280,6 +281,9 @@ export default function Home() {
 					Accept: 'application/json',
 				},
 			});
+
+			console.log('Upload API response:', response);
+			console.log('Response job_id:', response.job_id);
 
 			// Start polling job status
 			pollJobStatus(response.job_id);
