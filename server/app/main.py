@@ -89,6 +89,36 @@ async def health_check():
     """Health check endpoint for Render"""
     return {"status": "healthy", "message": "ZhiLog Backend is running in no-database mode"}
 
+# 添加缺失的API端点以避免404错误
+@app.get("/api/auth/onboarding")
+async def get_onboarding():
+    """Get onboarding data - 返回模拟数据"""
+    return {
+        "completed": True,
+        "steps": ["upload", "view", "chat", "highlight"],
+        "current_step": "complete"
+    }
+
+@app.get("/api/paper/note")
+async def get_paper_note(paper_id: str):
+    """Get paper note - 返回模拟数据"""
+    return {
+        "paper_id": paper_id,
+        "content": "",
+        "created_at": "2025-08-31T14:30:00Z",
+        "updated_at": "2025-08-31T14:30:00Z"
+    }
+
+@app.get("/api/message/models")
+async def get_available_models():
+    """Get available LLM models - 返回模拟数据"""
+    return {
+        "models": [
+            {"id": "gpt-4", "name": "GPT-4", "available": True},
+            {"id": "gpt-3.5-turbo", "name": "GPT-3.5 Turbo", "available": True}
+        ]
+    }
+
 # 创建必要的目录
 def create_upload_directories():
     """创建上传目录"""

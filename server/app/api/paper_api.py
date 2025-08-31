@@ -26,7 +26,7 @@ class ChatRequest(BaseModel):
 
 @paper_router.get("/all")
 async def get_paper_ids(
-    current_user: CurrentUser = Depends(get_required_user),
+    # current_user: CurrentUser = Depends(get_required_user),  # 暂时注释掉认证依赖
 ):
     """
     Get all paper IDs from memory storage
@@ -34,10 +34,13 @@ async def get_paper_ids(
     try:
         from app.api.paper_upload_api import in_memory_papers
         
+        # 使用模拟用户ID
+        mock_user_id = "mock-user-id"
+        
         # 获取当前用户的论文
         user_papers = [
             paper for paper in in_memory_papers.values() 
-            if paper.get("user_id") == str(current_user.id)
+            if paper.get("user_id") == mock_user_id
         ]
         
         if not user_papers:
@@ -68,7 +71,7 @@ async def get_paper_ids(
 @paper_router.get("")
 async def get_pdf(
     id: str,
-    current_user: CurrentUser = Depends(get_required_user),
+    # current_user: CurrentUser = Depends(get_required_user),  # 暂时注释掉认证依赖
 ):
     """
     Get paper details from memory storage
@@ -81,9 +84,9 @@ async def get_pdf(
         
         paper_data = in_memory_papers[id]
         
-        # 检查用户权限
-        if paper_data.get("user_id") != str(current_user.id):
-            return JSONResponse(status_code=403, content={"message": "Access denied"})
+        # 使用模拟用户ID，暂时跳过权限检查
+        # if paper_data.get("user_id") != str(current_user.id):
+        #     return JSONResponse(status_code=403, content={"message": "Access denied"})
         
         # 构建响应数据
         response_data = {
