@@ -31,10 +31,15 @@ app = FastAPI(
 
 client_domain = os.getenv("CLIENT_DOMAIN", "http://localhost:3000")
 
-# Configure CORS
+# Configure CORS - 允许前端域名和本地开发
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[client_domain],
+    allow_origins=[
+        client_domain,
+        "https://zhilog-frontend.onrender.com",  # 前端生产域名
+        "http://localhost:3000",  # 本地开发
+        "https://localhost:3000"  # 本地开发HTTPS
+    ],
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
