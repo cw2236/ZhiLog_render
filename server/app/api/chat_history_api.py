@@ -43,7 +43,7 @@ class ChatHistory(BaseModel):
 @chat_history_router.post("", response_model=ChatHistory)
 async def create_chat_history(
     chat_history: ChatHistoryCreate,
-    current_user: CurrentUser = Depends(get_required_user),
+    # current_user: CurrentUser = Depends(get_required_user),  # 暂时注释掉认证依赖
 ):
     """创建新的聊天记录"""
     try:
@@ -54,10 +54,13 @@ async def create_chat_history(
         if paper_id not in in_memory_papers:
             raise HTTPException(status_code=404, detail="Paper not found")
         
-        # 检查用户权限
-        paper_data = in_memory_papers[paper_id]
-        if paper_data.get("user_id") != str(current_user.id):
-            raise HTTPException(status_code=403, detail="Access denied")
+        # 检查用户权限 - 暂时跳过，使用模拟用户ID
+        # paper_data = in_memory_papers[paper_id]
+        # if paper_data.get("user_id") != str(current_user.id):
+        #     raise HTTPException(status_code=403, detail="Access denied")
+        
+        # 使用模拟用户ID
+        mock_user_id = "mock-user-id"
         
         # 创建聊天记录
         chat_id = str(uuid.uuid4())
@@ -67,7 +70,7 @@ async def create_chat_history(
         chat_record = ChatHistory(
             id=chat_id,
             paper_id=chat_history.paper_id,
-            user_id=str(current_user.id),
+            user_id=mock_user_id,  # 使用模拟用户ID
             message=chat_history.message,
             role=chat_history.role,
             chat_type=chat_history.chat_type,
@@ -92,7 +95,7 @@ async def create_chat_history(
 @chat_history_router.get("/paper/{paper_id}", response_model=List[ChatHistory])
 async def get_paper_chat_history(
     paper_id: str,
-    current_user: CurrentUser = Depends(get_required_user),
+    # current_user: CurrentUser = Depends(get_required_user),  # 暂时注释掉认证依赖
 ):
     """获取论文的聊天历史"""
     try:
@@ -102,10 +105,10 @@ async def get_paper_chat_history(
         if paper_id not in in_memory_papers:
             raise HTTPException(status_code=404, detail="Paper not found")
         
-        # 检查用户权限
-        paper_data = in_memory_papers[paper_id]
-        if paper_data.get("user_id") != str(current_user.id):
-            raise HTTPException(status_code=403, detail="Access denied")
+        # 检查用户权限 - 暂时跳过，使用模拟用户ID
+        # paper_data = in_memory_papers[paper_id]
+        # if paper_data.get("user_id") != str(current_user.id):
+        #     raise HTTPException(status_code=403, detail="Access denied")
         
         # 获取该论文的所有聊天记录
         paper_chats = [

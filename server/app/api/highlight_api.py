@@ -116,7 +116,10 @@ async def get_document_highlights(
         
         return JSONResponse(
             status_code=200,
-            content=paper_highlights,
+            content={
+                "highlights": paper_highlights,  # 包装在highlights字段中
+                "paper_id": paper_id
+            },
         )
         
     except Exception as e:

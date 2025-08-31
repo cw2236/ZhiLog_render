@@ -125,8 +125,8 @@ async def get_paper_annotations(paper_id: str):
     """Get paper annotations - 返回模拟数据"""
     return {
         "paper_id": paper_id,
-        "annotations": [],
-        "highlights": []
+        "annotations": [],  # 确保是空数组而不是null
+        "highlights": []    # 确保是空数组而不是null
     }
 
 @app.get("/api/paper/conversation")
@@ -135,7 +135,7 @@ async def get_paper_conversation(paper_id: str):
     return {
         "paper_id": paper_id,
         "conversation_id": f"conv_{paper_id}",
-        "messages": []
+        "messages": []  # 确保是空数组而不是null
     }
 
 @app.post("/api/conversation/{paper_id}")
@@ -153,7 +153,7 @@ async def get_conversation(conversation_id: str):
     return {
         "conversation_id": conversation_id,
         "paper_id": conversation_id.replace("conv_", ""),
-        "messages": [],
+        "messages": [],  # 确保是空数组而不是null
         "created_at": "2025-08-31T14:30:00Z"
     }
 
