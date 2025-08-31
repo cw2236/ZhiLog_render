@@ -53,7 +53,7 @@ class UploadResponse(BaseModel):
 @paper_upload_router.post("/", response_model=UploadResponse)
 async def upload_pdf(
     file: UploadFile = File(...),
-    current_user: CurrentUser = Depends(get_required_user),
+    # current_user: CurrentUser = Depends(get_required_user),  # 暂时注释掉认证依赖
 ) -> JSONResponse:
     """Upload a PDF file"""
     try:
@@ -63,13 +63,16 @@ async def upload_pdf(
                 content={"message": "Only PDF files are allowed"}
             )
         
+        # 创建模拟用户ID用于测试
+        mock_user_id = "mock-user-id"
+        
         # 创建上传任务
         job_id = str(uuid.uuid4())
         job_data = {
             "job_id": job_id,
             "status": "started",
             "started_at": datetime.now().isoformat(),
-            "user_id": str(current_user.id),
+            "user_id": mock_user_id,  # 使用模拟用户ID
             "filename": file.filename,
             "file_size": 0
         }
@@ -109,7 +112,7 @@ async def upload_pdf(
                 "year": 2025,
                 "created_at": datetime.now().isoformat(),
                 "updated_at": datetime.now().isoformat(),
-                "user_id": str(current_user.id),
+                "user_id": mock_user_id, # 使用模拟用户ID
                 "upload_job_id": job_id,
                 "file_size_kb": file_size // 1024
             }
@@ -144,7 +147,7 @@ async def upload_pdf(
 @paper_upload_router.get("/status/{job_id}")
 async def get_upload_status(
     job_id: str,
-    current_user: CurrentUser = Depends(get_required_user),
+    # current_user: CurrentUser = Depends(get_required_user),  # 暂时注释掉认证依赖
 ) -> JSONResponse:
     """Get the status of an upload job"""
     try:

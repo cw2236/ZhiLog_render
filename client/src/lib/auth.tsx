@@ -37,12 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	// Sync user state with localStorage whenever it changes
 	useEffect(() => {
-		console.log('User state changed:', user);
 		if (user) {
-			console.log('Setting user in localStorage:', user);
 			localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
 		} else {
-			console.log('Removing user from localStorage');
 			localStorage.removeItem(AUTH_STORAGE_KEY);
 		}
 	}, [user]);
@@ -51,9 +48,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		async function checkAuth() {
 			try {
-				console.log('=== AUTH DEBUG START ===');
-				console.log('checkAuth called, setting mock user');
-				
 				// 使用模拟数据而不是调用API
 				const mockUser: User = {
 					id: 'mock-user-id',
@@ -61,9 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					name: 'Test User',
 					is_active: true
 				};
-				console.log('Mock user created:', mockUser);
 				setUser(mockUser);
-				console.log('setUser called with mock user');
 			} catch (err) {
 				console.error('Auth check failed:', err);
 				setError('Failed to check authentication status');
@@ -75,7 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				}
 			} finally {
 				setLoading(false);
-				console.log('Auth loading set to false');
 			}
 		}
 
@@ -85,7 +76,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	// 自动登录功能
 	const autoLogin = async () => {
 		try {
-			console.log('autoLogin called');
 			setLoading(true);
 			setError(null);
 			
@@ -96,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				name: 'Test User',
 				is_active: true
 			};
-			console.log('Setting mock user in autoLogin:', mockUser);
 			setUser(mockUser);
 		} catch (err) {
 			console.error('Auto login failed:', err);

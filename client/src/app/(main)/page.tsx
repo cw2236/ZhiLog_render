@@ -60,15 +60,6 @@ export default function Home() {
 	const { subscription, loading: subscriptionLoading } = useSubscription();
 	const isMobile = useIsMobile();
 
-	// 添加调试信息
-	useEffect(() => {
-		console.log('=== HOMEPAGE DEBUG ===');
-		console.log('user:', user);
-		console.log('authLoading:', authLoading);
-		console.log('subscription:', subscription);
-		console.log('subscriptionLoading:', subscriptionLoading);
-	}, [user, authLoading, subscription, subscriptionLoading]);
-
 	// Toast notifications for subscription limits
 	useEffect(() => {
 		if (!subscriptionLoading && subscription && user) {
@@ -254,24 +245,9 @@ export default function Home() {
 
 
 	const handleFileUpload = async (file: File) => {
-		console.log('=== UPLOAD DEBUG START ===');
 		console.log('Starting file upload:', { fileName: file.name, fileSize: file.size });
-		console.log('Current user:', user);
-		console.log('User ID:', user?.id);
-		console.log('User email:', user?.email);
-		console.log('User active:', user?.is_active);
-		
-		// 检查localStorage
-		const storedUser = localStorage.getItem('auth_user');
-		console.log('Stored user in localStorage:', storedUser);
-		
-		// 检查cookies
-		console.log('All cookies:', document.cookie);
-		const sessionCookie = document.cookie.split(';').find(c => c.trim().startsWith('session='));
-		console.log('Session cookie:', sessionCookie);
 		
 		if (!user) {
-			console.error('No user found, cannot upload');
 			toast.error("Please log in to upload papers");
 			return;
 		}
@@ -309,7 +285,6 @@ export default function Home() {
 			pollJobStatus(response.job_id);
 		} catch (error) {
 			console.error('Error uploading file:', error);
-			console.log('=== UPLOAD DEBUG END WITH ERROR ===');
 			setShowErrorAlert(true);
 			setErrorAlertMessage(error instanceof Error ? error.message : DEFAULT_PAPER_UPLOAD_ERROR_MESSAGE);
 			if (error instanceof Error && error.message.includes('upgrade') && error.message.includes('upload limit')) {
