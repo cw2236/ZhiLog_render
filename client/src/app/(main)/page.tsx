@@ -419,6 +419,27 @@ export default function Home() {
 		}, []);
 	}
 
+	// 确保后端有正确的会话
+	useEffect(() => {
+		const ensureBackendSession = async () => {
+			try {
+				console.log('Ensuring backend session...');
+				const response = await fetchFromApi('/api/auth/auto-login', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+				});
+				console.log('Backend auto-login response:', response);
+			} catch (error) {
+				console.error('Failed to ensure backend session:', error);
+			}
+		};
+
+		// 如果用户存在，确保后端会话
+		if (user) {
+			ensureBackendSession();
+		}
+	}, [user]);
+
 	if (!user && !authLoading) {
 		return (
 			<OpenPaperLanding />
