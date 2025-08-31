@@ -28,7 +28,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		// Initialize from localStorage if in browser environment
 		if (typeof window !== 'undefined') {
 			const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
-			return storedUser ? JSON.parse(storedUser) : null;
+			if (storedUser) {
+				try {
+					const parsedUser = JSON.parse(storedUser);
+					console.log('AuthProvider: Initialized user from localStorage:', parsedUser);
+					return parsedUser;
+				} catch (error) {
+					console.error('AuthProvider: Failed to parse stored user:', error);
+					localStorage.removeItem(AUTH_STORAGE_KEY);
+				}
+			}
 		}
 		return null;
 	});
@@ -39,8 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		if (user) {
 			localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+			console.log('AuthProvider: User state updated, saved to localStorage:', user);
 		} else {
 			localStorage.removeItem(AUTH_STORAGE_KEY);
+			console.log('AuthProvider: User cleared, removed from localStorage');
 		}
 	}, [user]);
 
@@ -48,23 +59,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		async function checkAuth() {
 			try {
-				// 使用模拟数据而不是调用API
-				const mockUser: User = {
-					id: 'mock-user-id',
-					email: 'user@example.com',
-					name: 'Test User',
-					is_active: true
-				};
-				setUser(mockUser);
+				console.log('AuthProvider: Checking authentication...');
+				
+				// 如果localStorage中已有用户数据，直接使用
+				const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
+				if (storedUser) {
+					try {
+						const parsedUser = JSON.parse(storedUser);
+						console.log('AuthProvider: Using stored user:', parsedUser);
+						setUser(parsedUser);
+					} catch (error) {
+						console.error('AuthProvider: Failed to parse stored user:', error);
+						localStorage.removeItem(AUTH_STORAGE_KEY);
+					}
+				} else {
+					// 如果没有存储的用户数据，创建一个模拟用户
+					console.log('AuthProvider: No stored user, creating mock user');
+					const mockUser: User = {
+						id: 'mock-user-id',
+						email: 'user@example.com',
+						name: 'Test User',
+						is_active: true
+					};
+					setUser(mockUser);
+				}
 			} catch (err) {
 				console.error('Auth check failed:', err);
 				setError('Failed to check authentication status');
-				// 如果认证检查失败，尝试自动登录
-				try {
-					await autoLogin();
-				} catch (autoLoginErr) {
-					console.error('Auto login also failed:', autoLoginErr);
-				}
 			} finally {
 				setLoading(false);
 			}
@@ -76,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	// 自动登录功能
 	const autoLogin = async () => {
 		try {
+			console.log('AuthProvider: Auto login called');
 			setLoading(true);
 			setError(null);
 			
@@ -86,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				name: 'Test User',
 				is_active: true
 			};
+			console.log('AuthProvider: Setting mock user:', mockUser);
 			setUser(mockUser);
 		} catch (err) {
 			console.error('Auto login failed:', err);
